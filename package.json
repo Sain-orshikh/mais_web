@@ -1,4 +1,15 @@
 {
+  "name": "mais_web_root",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "cd mais_web && pnpm dev",
+    "start": "cd mais_web && pnpm start",
+    "build": "cd mais_web && pnpm build",
+    "lint": "cd mais_web && pnpm lint",
+    "preview": "cd mais_web && pnpm preview",
+    "install:deps": "cd mais_web && pnpm install"
+  },
   "dependencies": {
     "react-icons": "^5.5.0"
   }
