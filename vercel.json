@@ -2,7 +2,6 @@
   "buildCommand": "cd mais_web && pnpm build",
   "outputDirectory": "mais_web/build",
   "installCommand": "cd mais_web && pnpm install",
-  "packageManager": "pnpm",
   "rewrites": [
     {
       "source": "/(.*)",
