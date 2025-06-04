@@ -3,12 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "dev": "cd mais_web && pnpm dev",
-    "start": "cd mais_web && pnpm start",
-    "build": "cd mais_web && pnpm build",
-    "lint": "cd mais_web && pnpm lint",
-    "preview": "cd mais_web && pnpm preview",
-    "install:deps": "cd mais_web && pnpm install"
+    "dev": "cd mais_web && npm run dev",
+    "start": "cd mais_web && npm run start",
+    "build": "cd mais_web && npm run build",
+    "lint": "cd mais_web && npm run lint",
+    "preview": "cd mais_web && npm run preview",
+    "install:deps": "cd mais_web && npm install"
   },
   "dependencies": {
     "react-icons": "^5.5.0"

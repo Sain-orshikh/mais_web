@@ -1,7 +1,7 @@
 {
-  "buildCommand": "cd mais_web && pnpm build",
+  "buildCommand": "cd mais_web && npm run build",
   "outputDirectory": "mais_web/build",
-  "installCommand": "cd mais_web && pnpm install",
+  "installCommand": "cd mais_web && npm install",
   "rewrites": [
     {
       "source": "/(.*)",
