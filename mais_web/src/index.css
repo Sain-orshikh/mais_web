@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* MAIS Brand Colors */
+    --color-accent: #dc2626; /* Red-600 */
+    --color-accent-light: #fca5a5; /* Red-300 */
+    --color-accent-dark: #991b1b; /* Red-800 */
+    --color-accent-50: #fef2f2;
+    --color-accent-100: #fee2e2;
+    --color-accent-200: #fecaca;
+    
+    --color-success: #16a34a; /* Green-600 */
+    --color-success-light: #86efac; /* Green-300 */
+    --color-success-dark: #15803d; /* Green-700 */
+    --color-success-50: #f0fdf4;
+    --color-success-100: #dcfce7;
+    --color-success-200: #bbf7d0;
+  }
+}
+
+@layer components {
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+  
+  .bg-accent-light {
+    background-color: var(--color-accent-light);
+  }
+  
+  .bg-accent-dark {
+    background-color: var(--color-accent-dark);
+  }
+  
+  .bg-accent-50 {
+    background-color: var(--color-accent-50);
+  }
+  
+  .bg-accent-100 {
+    background-color: var(--color-accent-100);
+  }
+  
+  .bg-accent-200 {
+    background-color: var(--color-accent-200);
+  }
+  
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  .text-accent-light {
+    color: var(--color-accent-light);
+  }
+  
+  .text-accent-dark {
+    color: var(--color-accent-dark);
+  }
+  
+  .border-accent {
+    border-color: var(--color-accent);
+  }
+  
+  .border-accent-light {
+    border-color: var(--color-accent-light);
+  }
+  
+  .bg-success {
+    background-color: var(--color-success);
+  }
+  
+  .bg-success-light {
+    background-color: var(--color-success-light);
+  }
+  
+  .bg-success-dark {
+    background-color: var(--color-success-dark);
+  }
+  
+  .bg-success-50 {
+    background-color: var(--color-success-50);
+  }
+  
+  .bg-success-100 {
+    background-color: var(--color-success-100);
+  }
+  
+  .bg-success-200 {
+    background-color: var(--color-success-200);
+  }
+  
+  .text-success {
+    color: var(--color-success);
+  }
+  
+  .text-success-light {
+    color: var(--color-success-light);
+  }
+  
+  .text-success-dark {
+    color: var(--color-success-dark);
+  }
+  
+  .border-success {
+    border-color: var(--color-success);
+  }
+  
+  .hover\:bg-accent:hover {
+    background-color: var(--color-accent);
+  }
+  
+  .hover\:text-accent:hover {
+    color: var(--color-accent);
+  }
+  
+  .hover\:bg-success:hover {
+    background-color: var(--color-success);
+  }
+    .hover\:text-success:hover {
+    color: var(--color-success);
+  }
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
