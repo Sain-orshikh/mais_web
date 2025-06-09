@@ -74,11 +74,20 @@ const Menu = () => {
                   onMouseEnter={() => setIsSubmenuOpen(true)}
                   onMouseLeave={() => setIsSubmenuOpen(false)}
                 >
-                  <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">{hoveredItem}</h2>
-                  <ul className="space-y-2">
+                  <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">{hoveredItem}</h2>                  <ul className="space-y-2">
                     {subMenus[hoveredItem].map((subItem, index) => (
-                      <li onClick={() => {console.log('hippy!')}} key={index} className="p-2 bg-gray-700 rounded hover:bg-gray-600 cursor-pointer">
-                        {subItem}
+                      <li key={index} className="p-2 bg-gray-700 rounded hover:bg-gray-600 cursor-pointer">
+                        {subItem === 'Overview' ? (
+                          <Link 
+                            to="/aboutus" 
+                            onClick={handleMenuClick}
+                            className="block w-full text-left"
+                          >
+                            {subItem}
+                          </Link>
+                        ) : (
+                          <span onClick={() => {console.log('hippy!')}}>{subItem}</span>
+                        )}
                       </li>
                     ))}
                   </ul>

@@ -229,44 +229,47 @@ const WorldMapComponent = () => {
           </div>
 
           {/* Right Panel - Statistics and Info (takes 1/3 of the width) */}
-          <div className="lg:col-span-1 flex flex-col space-y-6 h-full">            {/* Alumni Stats */}
+          <div className="lg:col-span-1 flex flex-col space-y-6 h-full">
+            {/* Alumni Stats */}
             <div className="bg-white rounded-xl p-4 shadow-sm flex-1">
               <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Alumni Statistics</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                  <p className="text-xl font-bold text-blue-600">{totalAlumni}</p>
+              <div className="grid grid-cols-2 gap-2 h-full">
+                <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg flex flex-col justify-center">
+                  <p className="text-2xl font-bold text-blue-600">{totalAlumni}</p>
                   <p className="text-xs text-gray-600 mt-1">Total Alumni Abroad</p>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                  <p className="text-xl font-bold text-green-600">{totalCountries}</p>
+                <div className="text-center p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-lg flex flex-col justify-center">
+                  <p className="text-2xl font-bold text-green-600">{totalCountries}</p>
                   <p className="text-xs text-gray-600 mt-1">Countries</p>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                  <p className="text-xl font-bold text-purple-600">{totalUniversities}</p>
+                <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg flex flex-col justify-center">
+                  <p className="text-2xl font-bold text-purple-600">{totalUniversities}</p>
                   <p className="text-xs text-gray-600 mt-1">Universities</p>
                 </div>
-                <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
-                  <p className="text-xl font-bold text-orange-600">{filteredCountryData.length}</p>
+                <div className="text-center p-2 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg flex flex-col justify-center">
+                  <p className="text-2xl font-bold text-orange-600">{filteredCountryData.length}</p>
                   <p className="text-xs text-gray-600 mt-1">Showing Countries</p>
                 </div>
               </div>
-            </div>            {/* Top Countries */}
+            </div>
+
+            {/* Top Countries */}
             {filteredCountryData.length > 0 && (
-              <div className="bg-white rounded-xl p-4 shadow-sm flex-1">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Top Destinations</h3>
-                <div className="space-y-2">
+              <div className="bg-white rounded-xl p-6 shadow-sm flex-1">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Top Destinations</h3>
+                <div className="space-y-3 h-full flex flex-col justify-center">
                   {filteredCountryData
                     .sort((a, b) => b.value - a.value)
                     .slice(0, 5)
                     .map((item, index) => (
-                      <div key={item.country} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
+                      <div key={item.country} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center">
                           <span className="text-sm font-bold text-gray-400 w-6">#{index + 1}</span>
                           <div 
-                            className="w-3 h-3 rounded-full mr-2" 
+                            className="w-3 h-3 rounded-full mr-3" 
                             style={{ backgroundColor: item.color }}
                           ></div>
-                          <span className="font-medium text-gray-800 text-sm">{countryNames[item.country] || item.country}</span>
+                          <span className="font-medium text-gray-800">{countryNames[item.country] || item.country}</span>
                         </div>
                         <span className="text-lg font-bold text-gray-600">{item.value}</span>
                       </div>

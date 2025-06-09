@@ -6,23 +6,14 @@ import './App.css'
 import Navbar from "./components/Navbar/Navbar";
 import Profile from "./components/Profile";
 import Home from "./components/Home";
+import NewsArticle from "./components/NewsArticle";
+import NewsPage from "./components/NewsPage";
+import AboutUs from "./components/AboutUs";
 
 // Pre-load TipTap core components to avoid duplication
 const preloadTipTapCore = () => import("@tiptap/react");
 
 // Lazy load the components that use TipTap editor with improved naming to help with webpack chunks
-const NewsPage = lazy(() => {
-  console.time("NewsPage-load");
-  return Promise.all([
-    import("./components/News"),
-    preloadTipTapCore() // Ensure TipTap core is loaded beforehand
-  ])
-    .then(([moduleExport]) => {
-      console.timeEnd("NewsPage-load");
-      return moduleExport;
-    });
-});
-
 const EditNewsPage = lazy(() => {
   console.time("EditNewsPage-load");
   return Promise.all([
@@ -65,10 +56,10 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <Navbar />
-      <div className="pt-14">
-        <Suspense fallback={<LoadingComponent />}>
-          <Routes>
+      <div className="pt-14">        <Suspense fallback={<LoadingComponent />}>          <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/aboutus" element={<AboutUs />} />
+            <Route path="/news/:id" element={<NewsArticle />} />
             <Route path="/:id" element={<Profile />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/create" element={<CreatePage />} />

@@ -8,52 +8,18 @@ import SlidingHero from './ui/SlidingHero';
 import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
 import StudentLife from './StudentLife';
+import RegistrationNotification from './ui/RegistrationNotification';
+import { getAllNews } from '../data/newsData';
 
-const Home = () => {
-  // Sample school images - replace with actual image paths
+const Home = () => {  // School images from public folder
   const schoolImages = [
-    'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80',
-    'https://images.unsplash.com/photo-1544717305-2782549b5136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
-    'https://images.unsplash.com/photo-1509062522246-3755977927d7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1432&q=80'
-  ];  // Sample news items
-  const newsItems = [
-    { 
-      id: 1, 
-      title: "Spring Festival Celebration 2025", 
-      excerpt: "Join us for our annual Spring Festival featuring cultural performances, traditional food, and student art exhibitions. A celebration of our diverse community and rich traditions.",
-      imageUrl: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=500&h=300&fit=crop"
-    },
-    { 
-      id: 2, 
-      title: "MAIS Students Win International Math Competition", 
-      excerpt: "Our talented mathematics team secured first place at the Asia-Pacific International Mathematics Olympiad, showcasing exceptional problem-solving skills and dedication.",
-      imageUrl: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=500&h=300&fit=crop"
-    },
-    { 
-      id: 3, 
-      title: "New Science Lab Opening Ceremony", 
-      excerpt: "State-of-the-art laboratory facilities now open for advanced research and experiments. Equipped with cutting-edge technology to enhance learning experiences.",
-      imageUrl: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500&h=300&fit=crop"
-    },
-    { 
-      id: 4, 
-      title: "Student Exchange Program Announcement", 
-      excerpt: "Exciting opportunities for cultural exchange with partner schools worldwide. Applications now open for semester programs in Europe, North America, and Australia.",
-      imageUrl: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=500&h=300&fit=crop"
-    },
-    { 
-      id: 5, 
-      title: "Annual Sports Day Championships", 
-      excerpt: "Athletes showcase their talents in various sports competitions. Inter-house competitions foster teamwork, sportsmanship, and healthy competition among students.",
-      imageUrl: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=300&fit=crop"
-    },
-    { 
-      id: 6, 
-      title: "Environmental Sustainability Initiative", 
-      excerpt: "New green campus initiatives launched to promote environmental awareness. Solar panels, recycling programs, and eco-friendly practices implemented across the school.",
-      imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=300&fit=crop"
-    }
+    '/pic1.jpg',
+    '/pic2.jpg',
+    '/pic3.jpg'
   ];
+  
+  // Get news items from data
+  const newsItems = getAllNews();
 
   // Sample upcoming events
   const upcomingEvents = [
@@ -102,10 +68,8 @@ const Home = () => {
     
     return { ref, controls };
   };
-
   const { ref: featuresRef, controls: featuresControls } = useScrollAnimation();
   const { ref: newsRef, controls: newsControls } = useScrollAnimation();
-  const { ref: ctaRef, controls: ctaControls } = useScrollAnimation();
 
   return (
     <div className="min-h-screen">
@@ -133,30 +97,85 @@ const Home = () => {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 1 }}
-              >
-                <Link 
-                  to="/3341" 
+              >                <Link 
+                  to="/aboutus" 
                   className="bg-white text-accent-dark px-8 py-3 rounded-full text-lg font-semibold hover:bg-accent-50 transition-all hover:shadow-lg transform hover:-translate-y-1"
                 >
-                  View Student Profiles
+                  Learn More About Us
                 </Link>
               </motion.div>
             </div>
           </div>
           
-          {/* Scroll down indicator */}
+          {/* Scroll down indicator */}        </SlidingHero>
+      </section>
 
-        </SlidingHero>
-      </section>      {/* Latest News Section */}
+      {/* Registration Notification */}
+      <RegistrationNotification />
+
+      {/*{/* Call to Action Section
+      <motion.section 
+        ref={ctaRef}
+        variants={fadeInUp}
+        initial="hidden"
+        animate={ctaControls}
+        className="relative py-16 bg-white overflow-hidden"
+      >
+        {/* Background Pattern
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-success/5 to-accent/5"></div>
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-accent/10 rounded-full -translate-x-32 -translate-y-32"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-success/10 rounded-full translate-x-48 translate-y-48"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Icon 
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/10 rounded-full mb-6">
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
+            </div>            {/* Content
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
+              Ready to Join Our Community?
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Discover how MAIS can help shape your future with our world-class education and supportive community.
+            </p>
+            
+            {/* Buttons
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link 
+                to="/3341" 
+                className="bg-accent text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent-dark transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                Learn More
+              </Link>              <Link 
+                to="/contact" 
+                className="bg-white border-2 border-accent text-accent px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent hover:text-white transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                Contact Us
+              </Link>
+            </div>
+          </div>
+        </div>
+      </motion.section>*/}
+
+      {/* Latest News Section */}
       <motion.section 
         ref={newsRef}
         variants={fadeInUp}
         initial="hidden"
         animate={newsControls}
         className="py-12 bg-white"
-      >        <div className="container mx-auto px-4">          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Latest News</h2>
-            <Link 
+      ><div className="container mx-auto px-4">          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Latest News</h2>            <Link 
               to="/news" 
               className="text-gray-900 hover:text-gray-700 font-medium text-sm inline-flex items-center group"
             >
@@ -167,15 +186,13 @@ const Home = () => {
                 </svg>
               </div>
             </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {newsItems.map((item) => (
+          </div>          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">            {newsItems.map((item) => (
               <NewsCard
                 key={item.id}
                 title={item.title}
                 excerpt={item.excerpt}
                 imageUrl={item.imageUrl}
-                href="/news"
+                href={`/news/${item.id}`}
               />
             ))}
           </div>
@@ -277,62 +294,7 @@ const Home = () => {
               <p className="text-gray-600">State-of-the-art facilities designed for optimal learning including science labs, digital classrooms, and sports complexes.</p>
             </motion.div>
           </div>
-        </div>
-      </motion.section>      {/* Call to Action */}
-      <motion.section 
-        ref={ctaRef}
-        variants={fadeInUp}
-        initial="hidden"
-        animate={ctaControls}
-        className="relative py-16 bg-white overflow-hidden"
-      >
-        {/* Background Pattern */}
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-success/5 to-accent/5"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-accent/10 rounded-full -translate-x-32 -translate-y-32"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-success/10 rounded-full translate-x-48 translate-y-48"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Icon */}
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/10 rounded-full mb-6">
-              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-            </div>
-            
-            {/* Content */}
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
-              Ready to Join Our Community?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Discover how MAIS can help shape your future with our world-class education and supportive community.
-            </p>
-            
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link 
-                to="/3341" 
-                className="bg-accent text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent-dark transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                Learn More
-              </Link>              <Link 
-                to="/contact" 
-                className="bg-white border-2 border-accent text-accent px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent hover:text-white transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                </svg>
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </div>
-      </motion.section>
+        </div>      </motion.section>
 
       {/* Footer Section */}
       <footer className="bg-slate-900 text-white">
@@ -381,9 +343,8 @@ const Home = () => {
             {/* Quick Links */}
             <div>
               <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/about" className="text-gray-300 hover:text-white transition-colors text-sm">
+              <ul className="space-y-2">                <li>
+                  <Link to="/aboutus" className="text-gray-300 hover:text-white transition-colors text-sm">
                     About MAIS
                   </Link>
                 </li>
@@ -401,8 +362,7 @@ const Home = () => {
                   <Link to="/3341" className="text-gray-300 hover:text-white transition-colors text-sm">
                     Student Profiles
                   </Link>
-                </li>
-                <li>
+                </li>                <li>
                   <Link to="/news" className="text-gray-300 hover:text-white transition-colors text-sm">
                     News & Events
                   </Link>
