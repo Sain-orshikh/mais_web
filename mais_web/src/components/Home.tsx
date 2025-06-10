@@ -8,6 +8,7 @@ import SlidingHero from './ui/SlidingHero';
 import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
 import StudentLife from './StudentLife';
+import VideoShowcase from './VideoShowcase';
 import RegistrationNotification from './ui/RegistrationNotification';
 import { getAllNews } from '../data/newsData';
 
@@ -67,9 +68,7 @@ const Home = () => {  // School images from public folder
     }, [controls, inView]);
     
     return { ref, controls };
-  };
-  const { ref: featuresRef, controls: featuresControls } = useScrollAnimation();
-  const { ref: newsRef, controls: newsControls } = useScrollAnimation();
+  };  const { ref: newsRef, controls: newsControls } = useScrollAnimation();
 
   return (
     <div className="min-h-screen">
@@ -237,12 +236,13 @@ const Home = () => {  // School images from public folder
             <WorldMap />
           </div>
       </section>
-      <Statistics />
-
-      {/* Student Life Section */}
+      <Statistics />      {/* Student Life Section */}
       <StudentLife />
 
-      {/* Features Section */}
+      {/* Video Showcase Section */}
+      <VideoShowcase />
+
+      {/* Features Section
       <motion.section 
         ref={featuresRef}
         variants={fadeInUp}

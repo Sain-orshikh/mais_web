@@ -4,6 +4,7 @@ import type { CountryContext } from 'react-svg-worldmap';
 import { AnimatePresence } from 'framer-motion';
 import { getCountryAlumniData, getUniversitiesByCountry, getTotalAlumniCount, getTotalUniversityCount, getTotalCountryCount } from '../data/alumniData';
 import AlumniPopup from './ui/AlumniPopup';
+import AlumniPostersSlider from './ui/AlumniPostersSlider';
 
 interface CountryData {
   country: string;
@@ -274,20 +275,10 @@ const WorldMapComponent = () => {
                 </div>
               </div>
             )}
-          </div>
-        </div>
+          </div>        </div>
 
         {/* Alumni Posters Slider - Full Width Section */}
-        <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Featured Alumni</h3>
-          <div className="bg-gray-50 rounded-lg p-8 text-center">
-            <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2m0 0V9a2 2 0 012-2h12a2 2 0 012 2v2M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"></path>
-            </svg>
-            <p className="text-gray-600 font-medium">Alumni Slider Coming Soon</p>
-            <p className="text-gray-500 text-sm mt-1">Interactive alumni stories and achievements will be displayed here</p>
-          </div>
-        </div>
+        <AlumniPostersSlider />
 
         {/* Popup dialog */}
         <AnimatePresence>
