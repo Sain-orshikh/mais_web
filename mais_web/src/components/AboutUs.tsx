@@ -36,7 +36,7 @@ const AboutUs: React.FC = () => {
 
   const achievements2024 = [
     { title: "Country Awards", count: "4 students" },
-    { title: "Top in Mongolia", count: "8 students" },
+    { title: "Top in Mongolia", count: "14 students" },
     { title: "SIMOC", count: "3 teachers, 27 students - 25 medals" },
     { title: "Vanda Science Olympiad", count: "39 students - 33 medals" },
     { title: "National Biology Olympiad", count: "Gold-1, Special place-1" },
@@ -285,7 +285,7 @@ const AboutUs: React.FC = () => {
               {
                 title: "PDQ",
                 subtitle: "Professional Development Qualification",
-                subjects: "1 program",
+                subjects: "2 program",
                 color: "orange"
               },
               {
