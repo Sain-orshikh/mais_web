@@ -1,5 +1,5 @@
 import { type JSX } from 'react';
-import { FaUsers, FaGlobeAmericas, FaUserGraduate, FaTree } from 'react-icons/fa';
+import { FaUsers, FaBookOpen, FaUserGraduate, FaTree } from 'react-icons/fa';
 
 interface StatItem {
   icon: JSX.Element;
@@ -12,23 +12,23 @@ const Statistics = () => {
   const stats: StatItem[] = [
     {
       icon: <FaUsers className="w-8 h-8 text-red-800" />,
-      value: "480",
+      value: "384",
       label: "STUDENTS",
     },
     {
-      icon: <FaGlobeAmericas className="w-8 h-8 text-red-800" />,
-      value: "28/23",
-      label: "STATES AND COUNTRIES REPRESENTED",
+      icon: <FaUserGraduate className="w-8 h-8 text-red-800" />,
+      value: "42",
+      label: "TEACHERS",
     },
     {
-      icon: <FaUserGraduate className="w-8 h-8 text-red-800" />,
-      value: "24",
-      label: "AVERAGE CLASS SIZE",
+      icon: <FaBookOpen className="w-8 h-8 text-red-800" />,
+      value: "44",
+      label: "COURSES",
     },
     {
       icon: <FaTree className="w-8 h-8 text-red-800" />,
-      value: "$511M",
-      label: "ENDOWMENT",
+      value: "$3.4M",
+      label: "SCHOLARSHIPS",
     }
   ];
   return (
