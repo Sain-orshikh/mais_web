@@ -16,7 +16,8 @@ const Home = () => {  // School images from public folder
   const schoolImages = [
     '/pic1.jpg',
     '/pic2.jpg',
-    '/pic3.jpg'
+    '/pic3.jpg',
+    '/pic4.jpg'
   ];
   
   // Get news items from data
@@ -429,19 +430,21 @@ const Home = () => {  // School images from public folder
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
-                  <p className="text-gray-300 text-sm">+976 11 123456</p>
+                  <div className='flex flex-col space-y-2'>
+                  <p className="text-gray-300 text-sm">+976 77110139</p>
+                  <p className="text-gray-300 text-sm">+976 77110339</p>
+                  </div>
                 </div>                <div className="flex items-center">
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <p className="text-gray-300 text-sm">info@mais.edu.mn</p>
+                  <p className="text-gray-300 text-sm">info@mongolaspiration.edu.mn</p>
                 </div>                <div className="flex items-center">
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                   <div>
-                    <p className="text-gray-300 text-sm">Mon - Fri: 8:00 - 17:00</p>
-                    <p className="text-gray-300 text-sm">Sat: 9:00 - 15:00</p>
+                    <p className="text-gray-300 text-sm">Mon - Fri: 9:00 - 17:00</p>
                   </div>
                 </div>
               </div>
