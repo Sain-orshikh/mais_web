@@ -8,9 +8,9 @@ import SlidingHero from './ui/SlidingHero';
 import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
 import StudentLife from './StudentLife';
-import VideoShowcase from './VideoShowcase';
+import SchoolDirections from './SchoolDirections';
 import RegistrationNotification from './ui/RegistrationNotification';
-import { getAllNews } from '../data/newsData';
+import { getAllNews } from '../data/manualNewsData';
 
 const Home = () => {  // School images from public folder
   const schoolImages = [
@@ -191,7 +191,7 @@ const Home = () => {  // School images from public folder
                 key={item.id}
                 title={item.title}
                 excerpt={item.excerpt}
-                imageUrl={item.imageUrl}
+                thumbnailUrl={item.thumbnailUrl}
                 href={`/news/${item.id}`}
               />
             ))}
@@ -238,10 +238,8 @@ const Home = () => {  // School images from public folder
           </div>
       </section>
       <Statistics />      {/* Student Life Section */}
-      <StudentLife />
-
-      {/* Video Showcase Section */}
-      <VideoShowcase />
+      <StudentLife />      {/* School Directions Section */}
+      <SchoolDirections />
 
       {/* Features Section
       <motion.section 

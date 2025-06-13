@@ -1,49 +1,49 @@
-// Utility to manage alumni posters - simplified JPG-only version
+// Utility to manage alumni posters - using file names with WebP/JPG fallback
 export interface AlumniPosterData {
-  id: number;
-  src: string;
+  fileName: string;
+  webpSrc: string;
+  jpgSrc: string;
   alt: string;
 }
 
-// Generate poster data for available JPG files
-export const generateAlumniPosters = (count: number = 40): AlumniPosterData[] => {
-  const posters: AlumniPosterData[] = [];
-  
-  for (let i = 1; i <= count; i++) {
-    posters.push({
-      id: i,
-      src: `/alumni/jpg/${i}.jpg`,
-      alt: `Alumni Poster ${i} - Achievement showcase`
-    });
-  }
-  
-  return posters;
+// Generate poster data for available alumni files with WebP/JPG fallback
+export const generateAlumniPosters = (): AlumniPosterData[] => {  // List of all 16 available alumni poster file names (without extension)
+  const availableFileNames = [
+    "misheel mend-amar",
+    "altansuvd erdenebileg",
+    "anar tserendavaa", 
+    "bolormaa munkhbat",
+    "davkharbayar chuluunsukh",
+    "enkhriimaa tuvshinjargal",
+    "maral baatarkhuyag",
+    "misheel dulguun",
+    "nomunzul bayasgalan",
+    "sanchirbold enkhtaivan",
+    "tamir gankhuu",
+    "temuulen ganzorig",
+    "tergel tuguldur",
+    "tsendmaa erdenebat",
+    "tsogtzul dulguun",
+    "tuguldur munkh-erdene"
+  ];  return availableFileNames.map(fileName => ({
+    fileName,
+    webpSrc: `/alumni/webp/${fileName}.webp`,
+    jpgSrc: `/alumni/jpg/${fileName}.jpg`,
+    alt: `Alumni Poster ${fileName} - Achievement showcase`
+  }));
 };
 
-// Function to check if a poster exists
-export const checkPosterExists = async (id: number): Promise<boolean> => {
+// Function to check if a poster exists by fileName (checks both formats)
+export const checkPosterExists = async (fileName: string): Promise<boolean> => {
   try {
-    const response = await fetch(`/alumni/jpg/${id}.jpg`, { method: 'HEAD' });
-    return response.ok;
+    // Check WebP first
+    const webpResponse = await fetch(`/alumni/webp/${fileName}.webp`, { method: 'HEAD' });
+    if (webpResponse.ok) return true;
+    
+    // Fallback to JPG
+    const jpgResponse = await fetch(`/alumni/jpg/${fileName}.jpg`, { method: 'HEAD' });
+    return jpgResponse.ok;
   } catch {
     return false;
   }
-};
-
-// Get available posters count (for dynamic detection)
-export const getAvailablePostersCount = async (): Promise<number> => {
-  let count = 0;
-  
-  // Check files sequentially
-  for (let i = 1; i <= 100; i++) {
-    const exists = await checkPosterExists(i);
-    if (exists) {
-      count = i;
-    } else if (i > count + 10) {
-      // Stop checking after 10 consecutive missing files
-      break;
-    }
-  }
-  
-  return count;
 };

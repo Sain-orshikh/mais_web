@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
 interface UseLazyImageProps {
-  src: string;
+  webpSrc: string;
+  jpgSrc: string;
   threshold?: number;
 }
 
@@ -10,14 +11,16 @@ interface LazyImageState {
   isLoaded: boolean;
   isInView: boolean;
   hasError: boolean;
+  format: 'webp' | 'jpg' | null;
 }
 
-export const useLazyImage = ({ src, threshold = 0.1 }: UseLazyImageProps): [React.RefObject<HTMLDivElement | null>, LazyImageState] => {
+export const useLazyImage = ({ webpSrc, jpgSrc, threshold = 0.1 }: UseLazyImageProps): [React.RefObject<HTMLDivElement | null>, LazyImageState] => {
   const [state, setState] = useState<LazyImageState>({
     src: null,
     isLoaded: false,
     isInView: false,
-    hasError: false
+    hasError: false,
+    format: null
   });
   
   const ref = useRef<HTMLDivElement | null>(null);
@@ -38,37 +41,56 @@ export const useLazyImage = ({ src, threshold = 0.1 }: UseLazyImageProps): [Reac
 
     observer.observe(element);
     return () => observer.disconnect();
-  }, [threshold]);
-  useEffect(() => {
+  }, [threshold]);  useEffect(() => {
     if (!state.isInView) return;
 
     const loadImage = async () => {
       try {
-        // Create image element for preloading
-        const img = new Image();
+        // Try WebP first
+        const webpImg = new Image();
         
         await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = src;
+          webpImg.onload = resolve;
+          webpImg.onerror = reject;
+          webpImg.src = webpSrc;
         });
 
         setState(prev => ({
           ...prev,
-          src: src,
+          src: webpSrc,
           isLoaded: true,
-          hasError: false
+          hasError: false,
+          format: 'webp'
         }));
       } catch {
-        setState(prev => ({
-          ...prev,
-          hasError: true
-        }));
+        // Fallback to JPG if WebP fails
+        try {
+          const jpgImg = new Image();
+          
+          await new Promise((resolve, reject) => {
+            jpgImg.onload = resolve;
+            jpgImg.onerror = reject;
+            jpgImg.src = jpgSrc;
+          });
+
+          setState(prev => ({
+            ...prev,
+            src: jpgSrc,
+            isLoaded: true,
+            hasError: false,
+            format: 'jpg'
+          }));
+        } catch {
+          setState(prev => ({
+            ...prev,
+            hasError: true
+          }));
+        }
       }
     };
 
     loadImage();
-  }, [state.isInView, src]);
+  }, [state.isInView, webpSrc, jpgSrc]);
 
   return [ref, state];
 };

@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { InfiniteSlider } from '../animation/infiniteslider';
 import AlumniPoster from './AlumniPoster';
-import type { AlumniPosterData } from '../../utils/alumniPosters';
+import { generateAlumniPosters, type AlumniPosterData } from '../../utils/alumniPosters';
 
 const AlumniPostersSlider: React.FC = () => {  const [posters, setPosters] = useState<AlumniPosterData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const speed = 50; // Fixed speed for presentation
   // const [speed, setSpeed] = useState(50); // Commented out for presentation
-
   useEffect(() => {
-    // Generate posters based on available JPG files in your public/alumni/jpg/ folder
-    // Available: 1, 2, 3, 4, 5, 6, 10, 11, 12, 14
-    const availableIds = [1, 2, 3, 4, 5, 6, 10, 11, 12, 14];
-    const availablePosters = availableIds.map(id => ({
-      id,
-      src: `/alumni/jpg/${id}.jpg`,
-      alt: `Alumni Poster ${id} - Achievement showcase`
-    }));
+    // Generate posters based on available JPG files
+    const availablePosters = generateAlumniPosters();
     setPosters(availablePosters);
     setIsLoading(false);
   }, []);
@@ -76,7 +69,7 @@ const AlumniPostersSlider: React.FC = () => {  const [posters, setPosters] = use
           className="h-64"        >
           {posters.map((poster) => (
             <AlumniPoster
-              key={poster.id}
+              key={poster.fileName}
               poster={poster}
               className="w-64 h-64 flex-shrink-0"
             />

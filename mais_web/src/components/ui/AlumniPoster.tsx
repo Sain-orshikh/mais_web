@@ -12,8 +12,10 @@ interface AlumniPosterProps {
 const AlumniPoster: React.FC<AlumniPosterProps> = ({ 
   poster, 
   className = '' 
-}) => {
-  const [ref, { src, isLoaded, hasError }] = useLazyImage({ src: poster.src });
+}) => {  const [ref, { src, isLoaded, hasError }] = useLazyImage({ 
+    webpSrc: poster.webpSrc, 
+    jpgSrc: poster.jpgSrc 
+  });
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleClick = () => {
@@ -96,7 +98,7 @@ const AlumniPoster: React.FC<AlumniPosterProps> = ({
         onClose={handleCloseModal}
         posterSrc={src || ''}
         alt={poster.alt}
-        posterId={poster.id}
+        fileName={poster.fileName}
       />
     </>
   );

@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getNewsById } from '../data/newsData';
+import { getNewsById } from '../data/manualNewsData';
 
 const NewsArticle = () => {
   const { id } = useParams<{ id: string }>();
@@ -30,26 +30,15 @@ const NewsArticle = () => {
           </Link>
         </div>
       </div>
-    );
-  }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+    );  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="relative h-96 overflow-hidden">
+    <div className="min-h-screen bg-gray-50">      {/* Hero Section */}
+      <div className="relative h-[16rem] sm:h-[32rem] overflow-hidden">
         <img
           src={article.imageUrl}
           alt={article.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-fill"
         />
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="absolute inset-0 flex items-end">
@@ -57,23 +46,11 @@ const NewsArticle = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-4xl"
+              transition={{ duration: 0.6 }}              className="max-w-4xl"
             >
-              <div className="flex items-center space-x-4 mb-4">
-                <span className="bg-accent text-white px-3 py-1 rounded-full text-sm font-medium">
-                  {article.category}
-                </span>
-                <span className="text-white/80 text-sm">
-                  {formatDate(article.date)}
-                </span>
-              </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
                 {article.title}
               </h1>
-              <p className="text-xl text-white/90 max-w-3xl">
-                {article.excerpt}
-              </p>
             </motion.div>
           </div>
         </div>
@@ -97,40 +74,7 @@ const NewsArticle = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
               </svg>
               Back to News
-            </Link>
-          </motion.div>
-
-          {/* Article Meta */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white rounded-lg shadow-sm p-6 mb-8"
-          >
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="font-semibold text-gray-900">{article.author}</p>
-                  <p className="text-gray-600 text-sm">{formatDate(article.date)}</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {article.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+            </Link>          </motion.div>
 
           {/* Article Content */}
           <motion.div

@@ -139,14 +139,12 @@ const AboutUs: React.FC = () => {
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <div className="absolute left-4 md:left-1/2 transform md:-translate-x-1/2 w-1 bg-blue-600 h-full"></div>
-              
-              {[
+                {[
                 { year: "2011", event: "School established", desc: "Mongol Aspiration International School was founded" },
                 { year: "2012", event: "Cambridge International Exam Center", desc: "Registered as Cambridge International Examination Center" },
                 { year: "2015", event: "Cambridge International Curriculum", desc: "Cambridge International Curriculum evaluated at all levels" },
                 { year: "2019", event: "Cambridge PDQ Center", desc: "Became Cambridge Professional Development Qualification center" },
-                { year: "2023", event: "CIE: ICE, AICE Diploma, PDQ-center", desc: "Expanded Cambridge programs and certifications" },
-                { year: "2025", event: "Duke of Edinburgh's Award", desc: "Received authorization to implement The Duke of Edinburgh's Award" }
+                { year: "2023", event: "CIE: ICE, AICE Diploma, PDQ-center", desc: "Expanded Cambridge programs and certifications" }
               ].map((item, index) => (
                 <motion.div 
                   key={index}
@@ -287,18 +285,11 @@ const AboutUs: React.FC = () => {
                 subtitle: "Professional Development Qualification",
                 subjects: "2 program",
                 color: "orange"
-              },
-              {
+              },              {
                 title: "National Curriculum",
                 subtitle: "Grades 9-12",
                 subjects: "A-511 Standard",
                 color: "red"
-              },
-              {
-                title: "Duke of Edinburgh",
-                subtitle: "Silver & Gold Awards",
-                subjects: "Character Development",
-                color: "indigo"
               }
             ].map((program, index) => (
               <motion.div 
@@ -363,13 +354,17 @@ const AboutUs: React.FC = () => {
 
           <div className="max-w-6xl mx-auto">
             {/* Historic Achievements */}
-            <motion.div className="mb-12" variants={fadeInUp}>
-              <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Historic Milestones</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div className="mb-12" variants={fadeInUp}>              <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">Historic Milestones</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-xl shadow-sm text-center border-l-4 border-yellow-500">
                   <div className="text-2xl font-bold text-yellow-600 mb-2">2016</div>
                   <p className="text-gray-800 font-semibold">IGCSE Mathematics</p>
                   <p className="text-gray-600 text-sm">Top in the World</p>
+                </div>
+                <div className="bg-white p-6 rounded-xl shadow-sm text-center border-l-4 border-green-500">
+                  <div className="text-2xl font-bold text-green-600 mb-2">2022</div>
+                  <p className="text-gray-800 font-semibold">PISA Assessment</p>
+                  <p className="text-gray-600 text-sm">Top in Mongolia</p>
                 </div>
                 <div className="bg-white p-6 rounded-xl shadow-sm text-center border-l-4 border-yellow-500">
                   <div className="text-2xl font-bold text-yellow-600 mb-2">2023</div>

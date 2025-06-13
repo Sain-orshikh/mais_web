@@ -24,11 +24,10 @@ const Statistics = () => {
       icon: <FaBookOpen className="w-8 h-8 text-red-800" />,
       value: "44",
       label: "COURSES",
-    },
-    {
+    },    {
       icon: <FaTree className="w-8 h-8 text-red-800" />,
       value: "$3.4M",
-      label: "SCHOLARSHIPS",
+      label: "2024 SCHOLARSHIPS",
     }
   ];
   return (

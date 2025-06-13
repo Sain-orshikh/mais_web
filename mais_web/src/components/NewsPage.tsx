@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import NewsCard from './ui/NewsCard';
-import { getAllNews } from '../data/newsData';
+import { getAllNews } from '../data/manualNewsData';
 
 const NewsPage = () => {
   const newsItems = getAllNews();
@@ -46,11 +46,10 @@ const NewsPage = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
-            >
-              <NewsCard
+            >              <NewsCard
                 title={item.title}
                 excerpt={item.excerpt}
-                imageUrl={item.imageUrl}
+                thumbnailUrl={item.thumbnailUrl}
                 href={`/news/${item.id}`}
               />
             </motion.div>
