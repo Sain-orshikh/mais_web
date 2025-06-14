@@ -12,7 +12,7 @@ const NewsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 pb-8">
       {/* Hero Section */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-12">

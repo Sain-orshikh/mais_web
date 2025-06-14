@@ -9,6 +9,7 @@ import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
 import SchoolDirections from './SchoolDirections';
 import RegistrationNotification from './ui/RegistrationNotification';
+import RegistrationTestNotification from './ui/RegistrationTestNotification';
 import { getAllNews } from '../data/manualNewsData';
 
 const Home = () => {  // School images from public folder + Cloudinary
@@ -145,7 +146,7 @@ const Home = () => {  // School images from public folder + Cloudinary
             {/* Buttons
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link 
-                to="/3341" 
+                to="/wip" 
                 className="bg-accent text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent-dark transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +154,7 @@ const Home = () => {  // School images from public folder + Cloudinary
                 </svg>
                 Learn More
               </Link>              <Link 
-                to="/contact" 
+                to="/wip" 
                 className="bg-white border-2 border-accent text-accent px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent hover:text-white transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
               >
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
@@ -203,7 +204,7 @@ const Home = () => {  // School images from public folder + Cloudinary
       <section className="py-12 bg-gray-50">        <div className="container mx-auto px-4">          <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Upcoming Events</h2>
             <Link 
-              to="/events" 
+              to="/wip" 
               className="text-gray-900 hover:text-gray-700 font-medium text-sm inline-flex items-center group"
             >
               View All
@@ -347,17 +348,17 @@ const Home = () => {  // School images from public folder + Cloudinary
                   </Link>
                 </li>
                 <li>
-                  <Link to="/admissions" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                     Admissions
                   </Link>
                 </li>
                 <li>
-                  <Link to="/academics" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                     Academics
                   </Link>
                 </li>
                 <li>
-                  <Link to="/3341" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                     Student Profiles
                   </Link>
                 </li>                <li>
@@ -366,7 +367,7 @@ const Home = () => {  // School images from public folder + Cloudinary
                   </Link>
                 </li>
                 <li>
-                  <Link to="/careers" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                     Careers
                   </Link>
                 </li>
@@ -457,20 +458,22 @@ const Home = () => {  // School images from public folder + Cloudinary
                 </p>
               </div>
               <div className="flex space-x-6">
-                <Link to="/privacy" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Privacy Policy
                 </Link>
-                <Link to="/terms" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Terms of Service
                 </Link>
-                <Link to="/cookies" className="text-gray-300 hover:text-white transition-colors text-sm">
+                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Cookie Policy
                 </Link>
               </div>
             </div>
           </div>
-        </div>
-      </footer>
+        </div>      </footer>
+      
+      {/* Fixed Registration Test Notification */}
+      <RegistrationTestNotification />
     </div>
   );
 };

@@ -99,7 +99,6 @@ const AlumniPoster: React.FC<AlumniPosterProps> = ({
         onClose={handleCloseModal}
         posterSrc={src || ''}
         alt={poster.alt}
-        fileName={poster.fileName}
       />
     </>
   );

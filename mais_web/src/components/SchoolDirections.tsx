@@ -4,7 +4,28 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // Add custom styles for the labels
-const labelStyles = `  .school-label {
+const labelStyles = `
+  .leaflet-container {
+    font-family: inherit;
+  }
+  
+  .leaflet-control-zoom {
+    margin: 10px !important;
+  }
+  
+  @media (max-width: 768px) {
+    .leaflet-control-zoom {
+      margin: 5px !important;
+    }
+    .leaflet-control-zoom a {
+      width: 26px !important;
+      height: 26px !important;
+      line-height: 26px !important;
+      font-size: 14px !important;
+    }
+  }
+  
+  .school-label {
     background: rgba(220, 38, 38, 0.9) !important;
     color: white !important;
     border: none !important;
@@ -16,7 +37,15 @@ const labelStyles = `  .school-label {
     text-align: right !important;
     white-space: nowrap !important;
   }
-    .school-label::before {
+  
+  @media (max-width: 768px) {
+    .school-label {
+      font-size: 10px !important;
+      padding: 2px 6px !important;
+    }
+  }
+  
+  .school-label::before {
     border-left-color: rgba(220, 38, 38, 0.9) !important;
   }
   
@@ -29,6 +58,13 @@ const labelStyles = `  .school-label {
     font-weight: 600 !important;
     font-size: 11px !important;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+  }
+  
+  @media (max-width: 768px) {
+    .shopping-center-label {
+      font-size: 9px !important;
+      padding: 2px 4px !important;
+    }
   }
   
   .shopping-center-label::before {
@@ -129,102 +165,144 @@ const SchoolDirections = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${SCHOOL_LOCATION.lat},${SCHOOL_LOCATION.lng}`;
     window.open(url, '_blank');
   };
+
   // Initialize Leaflet map
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Calculate center point between school and shopping center
-    const centerLat = (SCHOOL_LOCATION.lat + SHOPPING_CENTER_LOCATION.lat) / 2;
-    const centerLng = (SCHOOL_LOCATION.lng + SHOPPING_CENTER_LOCATION.lng) / 2;
+    // Handle window resize for mobile orientation changes
+    const handleResize = () => {
+      if (mapInstanceRef.current) {
+        setTimeout(() => {
+          mapInstanceRef.current!.invalidateSize();
+        }, 100);
+      }
+    };
 
-    // Initialize the map
-    const map = L.map(mapRef.current, {
-      center: [centerLat, centerLng],
-      zoom: 15,
-      zoomControl: true,
-      scrollWheelZoom: true,
-      doubleClickZoom: true,
-      boxZoom: true,
-      keyboard: true,
-      dragging: true,
-      touchZoom: true
-    });
+    // Add a small delay to ensure DOM is ready, especially on mobile
+    const initTimer = setTimeout(() => {
+      if (!mapRef.current) return;
 
-    // Add tile layer (OpenStreetMap)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19
-    }).addTo(map);    // Create school marker with red icon
-    const schoolMarker = L.marker([SCHOOL_LOCATION.lat, SCHOOL_LOCATION.lng], {
-      icon: SchoolIcon,
-      title: SCHOOL_INFO.name
-    }).addTo(map);    // Add permanent label for school
-    schoolMarker.bindTooltip(SCHOOL_INFO.name, {
-      permanent: true,
-      direction: 'left',
-      offset: [-10, -5],
-      className: 'school-label'
-    });
+      // Calculate center point between school and shopping center
+      const centerLat = (SCHOOL_LOCATION.lat + SHOPPING_CENTER_LOCATION.lat) / 2;
+      const centerLng = (SCHOOL_LOCATION.lng + SHOPPING_CENTER_LOCATION.lng) / 2;      // Initialize the map
+      const map = L.map(mapRef.current, {
+        center: [centerLat, centerLng],
+        zoom: window.innerWidth < 768 ? 13 : 15, // More zoomed out on mobile
+        zoomControl: true,
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        dragging: true,
+        touchZoom: true,
+        preferCanvas: false
+      });// Add tile layer with better mobile options
+      const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+        crossOrigin: true,
+        detectRetina: true,
+        errorTileUrl: 'data:image/svg+xml;base64,' + btoa(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+            <rect width="256" height="256" fill="#f5f5f5"/>
+            <text x="128" y="128" text-anchor="middle" font-size="14" fill="#999">Map tile unavailable</text>
+          </svg>
+        `)
+      }).addTo(map);
 
-    // Add popup with school information
-    schoolMarker.bindPopup(`
-      <div style="text-align: center; padding: 8px; max-width: 250px;">
-        <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #dc2626;">
-          ${SCHOOL_INFO.name}
-        </h3>
-        <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151; font-weight: 500;">
-          ${SCHOOL_INFO.description}
-        </p>
-        <p style="margin: 0 0 5px 0; font-size: 13px; color: #64748b;">
-          ${SCHOOL_INFO.address}
-        </p>
-        <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b;">
-          ${SCHOOL_INFO.phone}
-        </p>
-        <button 
-          onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SCHOOL_LOCATION.lat},${SCHOOL_LOCATION.lng}', '_blank')"
-          style="background: #dc2626; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;"
-        >
-          Get Directions
-        </button>
-      </div>
-    `);
+      // Add error handling for tile loading
+      tileLayer.on('tileerror', function(e) {
+        console.warn('Tile loading error:', e);
+        // Could try alternative tile server here if needed
+      });
 
-    // Create shopping center marker with blue icon (smaller)
-    const shoppingCenterMarker = L.marker([SHOPPING_CENTER_LOCATION.lat, SHOPPING_CENTER_LOCATION.lng], {
-      icon: ShoppingCenterIcon,
-      title: SHOPPING_CENTER_INFO.name
-    }).addTo(map);
+      // Force map to invalidate size after a short delay for mobile
+      setTimeout(() => {
+        map.invalidateSize();
+      }, 100);
 
-    // Add permanent label for shopping center
-    shoppingCenterMarker.bindTooltip(SHOPPING_CENTER_INFO.name, {
-      permanent: true,
-      direction: 'right',
-      offset: [8, -3],
-      className: 'shopping-center-label'
-    });
+      // Create school marker with red icon
+      const schoolMarker = L.marker([SCHOOL_LOCATION.lat, SCHOOL_LOCATION.lng], {
+        icon: SchoolIcon,
+        title: SCHOOL_INFO.name
+      }).addTo(map);
 
-    // Add popup with shopping center information
-    shoppingCenterMarker.bindPopup(`
-      <div style="text-align: center; padding: 8px; max-width: 200px;">
-        <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: bold; color: #2563eb;">
-          ${SHOPPING_CENTER_INFO.name}
-        </h3>
-        <p style="margin: 0 0 8px 0; font-size: 13px; color: #374151;">
-          ${SHOPPING_CENTER_INFO.description}
-        </p>
-        <button 
-          onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SHOPPING_CENTER_LOCATION.lat},${SHOPPING_CENTER_LOCATION.lng}', '_blank')"
-          style="background: #2563eb; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 11px;"
-        >
-          Get Directions
-        </button>
-      </div>    `);
+      // Add permanent label for school
+      schoolMarker.bindTooltip(SCHOOL_INFO.name, {
+        permanent: true,
+        direction: 'left',
+        offset: [-10, -5],
+        className: 'school-label'
+      });
 
-    mapInstanceRef.current = map;
+      // Add popup with school information
+      schoolMarker.bindPopup(`
+        <div style="text-align: center; padding: 8px; max-width: 250px;">
+          <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #dc2626;">
+            ${SCHOOL_INFO.name}
+          </h3>
+          <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151; font-weight: 500;">
+            ${SCHOOL_INFO.description}
+          </p>
+          <p style="margin: 0 0 5px 0; font-size: 13px; color: #64748b;">
+            ${SCHOOL_INFO.address}
+          </p>
+          <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b;">
+            ${SCHOOL_INFO.phone}
+          </p>
+          <button 
+            onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SCHOOL_LOCATION.lat},${SCHOOL_LOCATION.lng}', '_blank')"
+            style="background: #dc2626; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;"
+          >
+            Get Directions
+          </button>
+        </div>
+      `);
+
+      // Create shopping center marker with blue icon (smaller)
+      const shoppingCenterMarker = L.marker([SHOPPING_CENTER_LOCATION.lat, SHOPPING_CENTER_LOCATION.lng], {
+        icon: ShoppingCenterIcon,
+        title: SHOPPING_CENTER_INFO.name
+      }).addTo(map);
+
+      // Add permanent label for shopping center
+      shoppingCenterMarker.bindTooltip(SHOPPING_CENTER_INFO.name, {
+        permanent: true,
+        direction: 'right',
+        offset: [8, -3],
+        className: 'shopping-center-label'
+      });
+
+      // Add popup with shopping center information
+      shoppingCenterMarker.bindPopup(`
+        <div style="text-align: center; padding: 8px; max-width: 200px;">
+          <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: bold; color: #2563eb;">
+            ${SHOPPING_CENTER_INFO.name}
+          </h3>
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #374151;">
+            ${SHOPPING_CENTER_INFO.description}
+          </p>
+          <button 
+            onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SHOPPING_CENTER_LOCATION.lat},${SHOPPING_CENTER_LOCATION.lng}', '_blank')"
+            style="background: #2563eb; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 11px;"
+          >
+            Get Directions
+          </button>
+        </div>
+      `);
+
+      mapInstanceRef.current = map;
+      
+      window.addEventListener('resize', handleResize);
+      window.addEventListener('orientationchange', handleResize);
+    }, 50);
 
     // Cleanup function
     return () => {
+      clearTimeout(initTimer);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -251,27 +329,28 @@ const SchoolDirections = () => {
           className="max-w-7xl mx-auto"
           variants={fadeInUp}
         >
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-            {/* Map Container - Leaflet Implementation */}
-            <div className="relative h-96 md:h-[500px]">
+          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">            {/* Map Container - Leaflet Implementation */}
+            <div className="relative h-64 sm:h-80 md:h-96 lg:h-[500px]">
               <div 
                 ref={mapRef} 
                 className="w-full h-full"
-                style={{ minHeight: '500px' }}
+                style={{ 
+                  minHeight: '256px',
+                  position: 'relative',
+                  zIndex: 1
+                }}
               />
-            </div>
-
-            {/* Additional Info Section */}
-            <div className="p-6 bg-gray-50">
+            </div>            {/* Additional Info Section */}
+            <div className="p-4 sm:p-6 bg-gray-50">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="text-center md:text-left">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{SCHOOL_INFO.name}</h3>
-                  <p className="text-gray-600">{SCHOOL_INFO.address}</p>
-                  <p className="text-gray-600">{SCHOOL_INFO.phone}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{SCHOOL_INFO.name}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">{SCHOOL_INFO.address}</p>
+                  <p className="text-sm sm:text-base text-gray-600">{SCHOOL_INFO.phone}</p>
                 </div>
                 <button
                   onClick={openDirections}
-                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                  className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full md:w-auto"
                 >
                   Get Directions
                 </button>

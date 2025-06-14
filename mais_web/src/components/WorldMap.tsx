@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import WorldMap from 'react-svg-worldmap';
 import type { CountryContext } from 'react-svg-worldmap';
 import { AnimatePresence } from 'framer-motion';
-import { getCountryAlumniData, getUniversitiesByCountry, getTotalAlumniCount, getTotalUniversityCount, getTotalCountryCount } from '../data/alumniData';
+import { getCountryAlumniData, getUniversitiesByCountry } from '../data/alumniData';
 import AlumniPopup from './ui/AlumniPopup';
 import AlumniPostersSlider from './ui/AlumniPostersSlider';
 
@@ -12,21 +12,79 @@ interface CountryData {
   color?: string;
 }
 
-// Generate country data from real alumni data
+// Generate country data with strategically assigned colors to avoid similar colors for adjacent countries
+// Excludes Mongolia (MN) since the school is located there - this is for showing abroad alumni only
 const generateCountryData = (): CountryData[] => {
   const countryAlumniData = getCountryAlumniData();
-  const colors = [
-    "#4287f5", "#41e086", "#f542b9", "#f5a142", "#42b0f5", 
-    "#f54242", "#42f5d1", "#b042f5", "#f5c242", "#42f572",
-    "#8442f5", "#f58442", "#4242f5", "#f542c2", "#42f5a4",
-    "#a442f5", "#f5a442", "#4275f5", "#f54275", "#75f542"
+    // Enhanced color palette with better contrast and more distinct colors
+  const distinctColors = [
+    "#E53E3E", // Red
+    "#3182CE", // Blue  
+    "#38A169", // Green
+    "#D69E2E", // Orange
+    "#805AD5", // Purple
+    "#DD6B20", // Deep Orange
+    "#319795", // Teal
+    "#D53F8C", // Magenta
+    "#2D3748", // Dark Gray
+    "#C53030", // Dark Red
+    "#2B6CB0", // Dark Blue
+    "#276749", // Dark Green
+    "#B7791F", // Dark Orange
+    "#553C9A", // Dark Purple
+    "#C05621", // Brown
+    "#2C7A7B", // Dark Teal
+    "#97266D", // Dark Pink
+    "#4A5568", // Slate
+    "#9C4221", // Rust
+    "#1A365D", // Navy
+    "#22543D", // Forest Green
+    "#744210", // Bronze
+    "#44337A", // Indigo
+    "#2A4365"  // Steel Blue
   ];
-  
-  return countryAlumniData.map((countryData, index) => ({
-    country: countryData.countryCode,
-    value: countryData.totalAlumni,
-    color: colors[index % colors.length]
-  }));
+
+  // Define geographical regions to ensure neighboring countries get contrasting colors
+  const regionColorAssignment: { [key: string]: string } = {
+    // North America - Cool colors
+    "US": distinctColors[1], // Blue
+    "CA": distinctColors[6], // Teal
+    
+    // Europe - Warm colors, distributed to avoid clustering
+    "GB": distinctColors[0], // Red
+    "DE": distinctColors[4], // Purple
+    "FR": distinctColors[3], // Orange
+    "IT": distinctColors[7], // Magenta
+    "ES": distinctColors[5], // Deep Orange
+    "AT": distinctColors[12], // Dark Orange
+    "PL": distinctColors[11], // Dark Green
+    "CZ": distinctColors[14], // Brown
+    "HU": distinctColors[16], // Dark Pink
+    "RO": distinctColors[18], // Rust
+    "UA": distinctColors[10], // Dark Blue
+    "TR": distinctColors[22], // Indigo
+    
+    // Asia-Pacific - Mixed colors to separate from Europe
+    "CN": distinctColors[2], // Green
+    "JP": distinctColors[8], // Dark Gray
+    "KR": distinctColors[3], // Dark Purple
+    "TW": distinctColors[15], // Dark Teal
+    "HK": distinctColors[19], // Navy
+    "KG": distinctColors[21], // Bronze
+    "RU": distinctColors[23], // Steel Blue
+    
+    // Oceania
+    "AU": distinctColors[9], // Dark Red
+  };
+
+  // Filter out Mongolia (MN) since this map shows abroad alumni only
+  return countryAlumniData
+    .filter((countryData) => countryData.countryCode !== 'MN')
+    .map((countryData) => ({
+      country: countryData.countryCode,
+      value: countryData.totalAlumni,
+      color: regionColorAssignment[countryData.countryCode] || distinctColors[0]
+    }));
 };
 
 const countryData: CountryData[] = generateCountryData();
@@ -129,17 +187,11 @@ const WorldMapComponent = () => {
   const handleResetFilters = () => {
     setSearchTerm('');
   };
-
   // Get universities for selected country
   const selectedCountryUniversities = useMemo(() => {
     if (!selectedCountry) return [];
     return getUniversitiesByCountry(selectedCountry);
   }, [selectedCountry]);
-
-  // Calculate statistics
-  const totalAlumni = getTotalAlumniCount();
-  const totalCountries = getTotalCountryCount();
-  const totalUniversities = getTotalUniversityCount();
 
   return (
     <>
@@ -232,22 +284,21 @@ const WorldMapComponent = () => {
           {/* Right Panel - Statistics and Info (takes 1/3 of the width) */}
           <div className="lg:col-span-1 flex flex-col space-y-6 h-full">            {/* Alumni Stats */}
             <div className="bg-white rounded-xl p-4 shadow-sm flex-1">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Alumni Statistics</h3>
-              <div className="grid grid-cols-2 gap-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Alumni Statistics</h3>              <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                  <p className="text-xl font-bold text-blue-600">{totalAlumni}</p>
-                  <p className="text-xs text-gray-600 mt-1">Total Alumni Abroad</p>
+                  <p className="text-xl font-bold text-blue-600">{filteredCountryData.reduce((sum, country) => sum + country.value, 0)}</p>
+                  <p className="text-xs text-gray-600 mt-1">Alumni Abroad</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                  <p className="text-xl font-bold text-green-600">{totalCountries}</p>
+                  <p className="text-xl font-bold text-green-600">{filteredCountryData.length}</p>
                   <p className="text-xs text-gray-600 mt-1">Countries</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                  <p className="text-xl font-bold text-purple-600">{totalUniversities}</p>
+                  <p className="text-xl font-bold text-purple-600">{filteredCountryData.reduce((sum, country) => sum + getUniversitiesByCountry(country.country).length, 0)}</p>
                   <p className="text-xs text-gray-600 mt-1">Universities</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
-                  <p className="text-xl font-bold text-orange-600">{filteredCountryData.length}</p>
+                  <p className="text-xl font-bold text-orange-600">{searchTerm ? filteredCountryData.length : countryData.length}</p>
                   <p className="text-xs text-gray-600 mt-1">Showing Countries</p>
                 </div>
               </div>

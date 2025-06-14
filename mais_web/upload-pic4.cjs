@@ -12,31 +12,40 @@ cloudinary.config({
 
 async function uploadPic4ToCloudinary() {
   try {
-    const filePath = path.join(__dirname, 'public', 'pic4.jpg');
+    // First, delete the old JPG version
+    console.log('🗑️ Deleting old pic4.jpg from Cloudinary...');
+    try {
+      await cloudinary.uploader.destroy('misc/pic4', { 
+        resource_type: 'image',
+        type: 'upload'
+      });
+      console.log('✅ Old pic4.jpg deleted from Cloudinary');
+    } catch (deleteError) {
+      console.log('ℹ️ No existing pic4 found to delete (this is fine)');
+    }
+
+    const filePath = path.join(__dirname, 'public', 'pic4.jpeg');
     
     if (!fs.existsSync(filePath)) {
-      console.error('❌ pic4.jpg not found in public directory');
+      console.error('❌ pic4.jpeg not found in public directory');
       return;
     }
 
-    console.log('📂 Uploading pic4.jpg to News JPG Account...');
-    
-    const result = await cloudinary.uploader.upload(filePath, {
+    console.log('📂 Uploading pic4.jpeg to News JPG Account...');      const result = await cloudinary.uploader.upload(filePath, {
       public_id: 'pic4',
       folder: 'misc',
       resource_type: 'image',
-      format: 'jpg',
       quality: 'auto:good'
+      // Removed format to preserve original
     });
-    
-    console.log('✅ Successfully uploaded pic4.jpg');
+      console.log('✅ Successfully uploaded pic4.jpeg');
     console.log('🌐 Cloudinary URL:', result.secure_url);
     console.log('📊 File size:', Math.round(result.bytes / 1024 / 1024 * 100) / 100, 'MB');
     
     // Save the URL for reference
     const urlInfo = {
       timestamp: new Date().toISOString(),
-      original_file: 'pic4.jpg',
+      original_file: 'pic4.jpeg',
       cloudinary_url: result.secure_url,
       public_id: result.public_id,
       size_bytes: result.bytes,
@@ -45,8 +54,7 @@ async function uploadPic4ToCloudinary() {
     
     fs.writeFileSync('pic4-cloudinary-url.json', JSON.stringify(urlInfo, null, 2));
     console.log('📁 URL info saved to: pic4-cloudinary-url.json');
-    
-    console.log('\n💡 You can now replace references to /pic4.jpg with:');
+      console.log('\n💡 You can now replace references to /pic4.jpeg with:');
     console.log('   ', result.secure_url);
     
   } catch (error) {

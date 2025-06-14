@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import './App.css'
 
@@ -9,6 +9,7 @@ import Home from "./components/Home";
 import NewsArticle from "./components/NewsArticle";
 import NewsPage from "./components/NewsPage";
 import AboutUs from "./components/AboutUs";
+import WorkInProgress from "./components/WorkInProgress";
 
 // Pre-load TipTap core components to avoid duplication
 const preloadTipTapCore = () => import("@tiptap/react");
@@ -56,16 +57,24 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <Navbar />
-      <div className="">        <Suspense fallback={<LoadingComponent />}>          <Routes>
-            <Route path="/" element={<Home />} />
+      <div className="">        <Suspense fallback={<LoadingComponent />}>          <Routes>            <Route path="/" element={<Home />} />
             <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/news/:id" element={<NewsArticle />} />
-            <Route path="/:id" element={<Profile />} />
+            <Route path="/news" element={<NewsPage />} />
+            
+            {/* Work in Progress route - needs to be before /:id */}
+            <Route path="/wip" element={<WorkInProgress />} />
+            
+            {/* Admin routes */}
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/admin/create" element={<CreatePage />} />
             <Route path="/admin/publish" element={<EditNewsPage />} />
-            <Route path="/news" element={<NewsPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            
+            {/* Profile route for individual alumni - this should come after specific routes */}
+            <Route path="/:id" element={<Profile />} />
+            
+            {/* Catch-all route - any other path goes to Work in Progress */}
+            <Route path="*" element={<WorkInProgress />} />
           </Routes>
         </Suspense>
       </div>

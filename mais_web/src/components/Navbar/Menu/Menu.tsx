@@ -74,9 +74,7 @@ const Menu = () => {
                   onMouseEnter={() => setIsSubmenuOpen(true)}
                   onMouseLeave={() => setIsSubmenuOpen(false)}
                 >
-                  <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">{hoveredItem}</h2>                  <ul className="space-y-2">
-                    {subMenus[hoveredItem].map((subItem, index) => (
-                      <li key={index} className="p-2 bg-gray-700 rounded hover:bg-gray-600 cursor-pointer">
+                  <h2 className="text-base md:text-lg font-semibold mb-3 md:mb-4">{hoveredItem}</h2>                  <ul className="space-y-2">                    {subMenus[hoveredItem].map((subItem, index) => (                      <li key={index} className="p-2 bg-gray-700 rounded hover:bg-gray-600 cursor-pointer">
                         {subItem === 'Overview' ? (
                           <Link 
                             to="/aboutus" 
@@ -85,8 +83,24 @@ const Menu = () => {
                           >
                             {subItem}
                           </Link>
+                        ) : subItem === 'Admission' ? (
+                          <a 
+                            href="https://mongolaspiration.edu.mn" 
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={handleMenuClick}
+                            className="block w-full text-left"
+                          >
+                            {subItem}
+                          </a>
                         ) : (
-                          <span onClick={() => {console.log('hippy!')}}>{subItem}</span>
+                          <Link 
+                            to="/wip" 
+                            onClick={handleMenuClick}
+                            className="block w-full text-left"
+                          >
+                            {subItem}
+                          </Link>
                         )}
                       </li>
                     ))}
@@ -99,23 +113,28 @@ const Menu = () => {
             </div>
           </div>
           <div className="footer mt-auto h-[4rem] bg-gray-800 flex flex-col md:flex-row items-center p-4 md:p-0">
-            <div className="w-full md:w-[50%] flex justify-center items-center mb-2 md:mb-0">
-              <ul className="flex flex-wrap justify-center gap-4 md:gap-12">
-                {footerLinks.map((link, index) => (
-                  <Link to={`${link}`} onClick={handleMenuClick} key={index} className="capitalize cursor-pointer hover:text-gray-400">
+            <div className="w-full md:w-[50%] flex justify-center items-center mb-2 md:mb-0">              <ul className="flex flex-wrap justify-center gap-4 md:gap-12">                {footerLinks.map((link, index) => (
+                  <Link 
+                    to={link === "news" ? "/news" : "/wip"} 
+                    onClick={handleMenuClick} 
+                    key={index} 
+                    className="capitalize cursor-pointer hover:text-gray-400"
+                  >
                     {link}
                   </Link>
                 ))}
               </ul>
+            </div>            <div className="w-full md:w-[50%] flex justify-center items-center gap-4">
+              <p>&copy; 2025 MAIS</p>
+              <a 
+                href="https://mongolaspiration.edu.mn" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-400 underline font-medium transition-colors"
+              >
+                Register
+              </a>
             </div>
-            <div className="w-full md:w-[50%] flex justify-center items-center">
-              <p>&copy; 2021 MAIS</p>
-              <button>
-                <a href="/admin" className="ml-4 text-blue-500 hover:underline">
-                  Admin
-                </a>
-              </button>
-            </div>  
           </div>
         </div>
       )}
