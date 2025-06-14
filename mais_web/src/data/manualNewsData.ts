@@ -1,10 +1,13 @@
+// Utility to manage news images - using Cloudinary URLs  
+import { generateNewsImageUrl } from '../utils/cloudinaryConfig';
+
 export interface NewsItem {
   id: number;
   title: string;
   excerpt: string;
   content: string;
   imageUrl: string;
-  thumbnailUrl: string; // New field for lower quality news card images
+  thumbnailUrl: string; // For lower quality news card images
 }
 
 // Helper function to create excerpt from content
@@ -38,12 +41,12 @@ export const manualNewsData: NewsItem[] = [  {
       
       <p>Each speaker delivered a unique and impactful presentation, showcasing not only their individual perspectives and communication skills, but also introducing fresh ideas and original solutions to modern-day challenges.</p>
       
-      <p>Our guest speaker, Aminzaya B., shared a personal journey of perseverance and self-discovery. Choosing not to enroll directly in university, she spent time teaching at her alma mater, Tomujin School, to gain experience and confidence. Her inspiring talk highlighted how this decision helped her grow and ultimately gain admission to her dream university in the United States. Her story served as a powerful example and source of motivation for our students.</p>
-    `,
-    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news1.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news1.jpg" // Lower quality JPEG for news card
-  },{
+      <p>Our guest speaker, Aminzaya B., shared a personal journey of perseverance and self-discovery. Choosing not to enroll directly in university, she spent time teaching at her alma mater, Tomujin School, to gain experience and confidence. Her inspiring talk highlighted how this decision helped her grow and ultimately gain admission to her dream university in the United States. Her story served as a powerful example and source of motivation for our students.</p>    `,
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news1.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news1") // JPG fallback from Cloudinary
+  },
+  {
     id: 2,
     title: "MAMUN 2025 Successfully Concludes",
     content: `
@@ -101,11 +104,11 @@ export const manualNewsData: NewsItem[] = [  {
         <li><strong>Honorable Mention:</strong> Erdenebat B. – New Era School</li>
       </ul>
       
-      <p>A special highlight of MAMUN 2025 was the introduction of a dedicated committee for first-time debaters, offering a welcoming environment to explore diplomacy and public speaking. We extend our heartfelt gratitude to our sponsor, the team at Khas brand, for their generous support of this meaningful initiative.</p>
-    `,    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news2.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news2.jpeg" // Lower quality JPEG for news card
-  },  {
+      <p>A special highlight of MAMUN 2025 was the introduction of a dedicated committee for first-time debaters, offering a welcoming environment to explore diplomacy and public speaking. We extend our heartfelt gratitude to our sponsor, the team at Khas brand, for their generous support of this meaningful initiative.</p>    `,    
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news2.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news2") // JPG fallback from Cloudinary
+  },{
     id: 3,
     title: "Outstanding Cambridge Learner Awards Ceremony",
     content: `
@@ -149,12 +152,12 @@ export const manualNewsData: NewsItem[] = [  {
         <li><strong>Dulguun Gansukh (Private Candidate)</strong> – Best Across A Level</li>
       </ul>
       
-      <p>We extend our heartfelt congratulations to all award recipients, their dedicated teachers, and the supportive parents and guardians who contributed to these remarkable achievements. On behalf of the school administration and faculty, we wish all our students continued success in their academic journeys.</p>
-    `,
-    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news3.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news3.jpg" // Lower quality JPEG for news card
-  },  {
+      <p>We extend our heartfelt congratulations to all award recipients, their dedicated teachers, and the supportive parents and guardians who contributed to these remarkable achievements. On behalf of the school administration and faculty, we wish all our students continued success in their academic journeys.</p>    `,
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news3.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news3") // JPG fallback from Cloudinary
+  },
+  {
     id: 4,
     title: "Students from Mongol Temuulel School Win Top 3 Spot in National YES4GREEN Youth Business Challenge",
     content: `
@@ -166,9 +169,9 @@ export const manualNewsData: NewsItem[] = [  {
       
       <p>We extend our warmest congratulations to Yalguun, Zaluudai, and Khos-Erdene on this outstanding achievement, and express our deep gratitude to their Business Studies teacher, Mrs. Enkhtuya, for her invaluable guidance and support throughout the process.</p>
     `,
-    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news4.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news4.jpg" // Lower quality JPEG for news card
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news4.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news4") // JPG fallback from Cloudinary
   },  {
     id: 5,
     title: "Mongol Aspiration School Shines at Robot Challenge World 2024 in Beijing",
@@ -209,9 +212,9 @@ export const manualNewsData: NewsItem[] = [  {
       
       <p>We extend our heartfelt congratulations to all participating students and express our sincere gratitude to teachers Mr. Shine-Od G. and Mr. Davaasuren J. for their dedicated mentorship and support that helped make these achievements possible.</p>
     `,
-    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news5.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news5.jpg" // Lower quality JPEG for news card
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news5.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news5") // JPG fallback from Cloudinary
   },  {
     id: 6,
     title: "Mongol Temuulel School Earns Top Honors at Harvard Model United Nations China 2024",
@@ -274,9 +277,9 @@ export const manualNewsData: NewsItem[] = [  {
       
       <p>We extend our heartfelt congratulations to the dedicated students and teachers who worked collaboratively to make this possible, and express our sincere gratitude to the supportive parents and school administration.</p>
     `,
-    excerpt: "", // Will be auto-generated from content
-    imageUrl: "/news/news6.png", // High quality PNG for article view
-    thumbnailUrl: "/news/news6.jpg" // Lower quality JPEG for news card
+    excerpt: "", // Will be auto-generated from content,
+    imageUrl: `/news/webp/news6.webp`, // Local WebP first
+    thumbnailUrl: generateNewsImageUrl("news6") // JPG fallback from Cloudinary
   }
 ];
 

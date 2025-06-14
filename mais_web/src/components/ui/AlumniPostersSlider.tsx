@@ -1,26 +1,222 @@
 import React, { useState, useEffect } from 'react';
-import { InfiniteSlider } from '../animation/infiniteslider';
+import { motion } from 'framer-motion';
+import { generateAlumniPosters } from '../../utils/alumniPosters';
+import type { AlumniPosterData } from '../../utils/alumniPosters';
 import AlumniPoster from './AlumniPoster';
-import { generateAlumniPosters, type AlumniPosterData } from '../../utils/alumniPosters';
+import { InfiniteSlider } from '../animation/infiniteslider';
 
-const AlumniPostersSlider: React.FC = () => {  const [posters, setPosters] = useState<AlumniPosterData[]>([]);
+// Global persistent cache that survives component remounts and page reloads
+interface CachedImage {
+  src: string;
+  format: 'webp' | 'jpg';
+  timestamp: number;
+}
+
+const globalImageCache = new Map<string, CachedImage>();
+const CACHE_EXPIRY = 30 * 60 * 1000; // 30 minutes
+const LOCALSTORAGE_KEY = 'mais_alumni_cache';
+
+// Load cache from localStorage on module initialization
+const loadCacheFromStorage = () => {
+  try {
+    const stored = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (stored) {
+      const data = JSON.parse(stored) as Record<string, unknown>;
+      Object.entries(data).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && value !== null) {
+          const cachedImage = value as CachedImage;
+          if (cachedImage.timestamp && cachedImage.src) {
+            // Check if cache entry is still valid
+            if (Date.now() - cachedImage.timestamp < CACHE_EXPIRY) {
+              globalImageCache.set(key, cachedImage);
+            }
+          }
+        }
+      });
+      console.log(`[Cache] Loaded ${globalImageCache.size} cached images from localStorage`);
+    }
+  } catch (error) {
+    console.warn('[Cache] Failed to load cache from localStorage:', error);
+  }
+};
+
+// Save cache to localStorage
+const saveCacheToStorage = () => {
+  try {
+    const data: Record<string, CachedImage> = {};
+    globalImageCache.forEach((value, key) => {
+      // Only save valid, non-expired entries
+      if (Date.now() - value.timestamp < CACHE_EXPIRY) {
+        data[key] = value;
+      }
+    });
+    localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.warn('[Cache] Failed to save cache to localStorage:', error);
+  }
+};
+
+// Initialize cache from storage
+loadCacheFromStorage();
+
+// Preload function for caching with 3-tier fallback and persistent storage
+const preloadAlumniImage = async (webpPrimary: string, webpFallback: string, jpgFallback: string): Promise<void> => {
+  const cacheKey = `${webpPrimary}|${webpFallback}|${jpgFallback}`;
+  
+  // Skip if already cached and not expired
+  const cached = globalImageCache.get(cacheKey);
+  if (cached && Date.now() - cached.timestamp < CACHE_EXPIRY) {
+    console.log('[Cache] Image already cached:', cacheKey.split('|')[0].split('/').pop());
+    return;
+  }
+
+  try {
+    // Try primary WebP first
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = webpPrimary;
+    });
+    
+    const cacheEntry: CachedImage = {
+      src: webpPrimary,
+      format: 'webp',
+      timestamp: Date.now()
+    };
+    globalImageCache.set(cacheKey, cacheEntry);
+    saveCacheToStorage();
+    console.log('[Cache] Cached WebP primary:', webpPrimary.split('/').pop());
+    
+  } catch {
+    try {
+      // Try fallback WebP
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = webpFallback;
+      });
+      
+      const cacheEntry: CachedImage = {
+        src: webpFallback,
+        format: 'webp',
+        timestamp: Date.now()
+      };
+      globalImageCache.set(cacheKey, cacheEntry);
+      saveCacheToStorage();
+      console.log('[Cache] Cached WebP fallback:', webpFallback.split('/').pop());
+      
+    } catch {
+      // Final fallback to JPG
+      const img = new Image();
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = reject;
+        img.src = jpgFallback;
+      });
+      
+      const cacheEntry: CachedImage = {
+        src: jpgFallback,
+        format: 'jpg',
+        timestamp: Date.now()
+      };
+      globalImageCache.set(cacheKey, cacheEntry);
+      saveCacheToStorage();
+      console.log('[Cache] Cached JPG fallback:', jpgFallback.split('/').pop());
+    }
+  }
+};
+
+const AlumniPostersSlider: React.FC = () => {
+  const [posters, setPosters] = useState<AlumniPosterData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const speed = 50; // Fixed speed for presentation
-  // const [speed, setSpeed] = useState(50); // Commented out for presentation
   useEffect(() => {
-    // Generate posters based on available JPG files
-    const availablePosters = generateAlumniPosters();
-    setPosters(availablePosters);
-    setIsLoading(false);
+    const loadPosters = async () => {
+      try {
+        const posterData = generateAlumniPosters();
+        setPosters(posterData);
+        
+        // Check if images are already cached globally or in localStorage
+        const totalImages = posterData.length;
+        let cachedCount = 0;
+        
+        posterData.forEach(poster => {
+          const cacheKey = `${poster.webpPrimary}|${poster.webpFallback}|${poster.jpgFallback}`;
+          const cached = globalImageCache.get(cacheKey);
+          if (cached && Date.now() - cached.timestamp < CACHE_EXPIRY) {
+            cachedCount++;
+          }
+        });
+        
+        const cachePercentage = (cachedCount / totalImages) * 100;        console.log(`[Cache] Found ${cachedCount}/${totalImages} images in cache (${Math.round(cachePercentage)}%)`);
+          if (cachedCount === totalImages) {
+          console.log('[Cache] All images already cached, skipping preload');
+          setIsLoading(false);
+          return;
+        }
+        
+        // Start preloading remaining images in background
+        
+        // Start preloading remaining images in background
+        preloadImages(posterData);
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error loading alumni posters:', error);
+        setIsLoading(false);
+      }
+    };
+
+    loadPosters();
   }, []);
+  const preloadImages = async (posterData: AlumniPosterData[]) => {
+    // Preload first 5 images immediately (for initial view)
+    const priorityImages = posterData.slice(0, 5);
+    const backgroundImages = posterData.slice(5);
+
+    // Load priority images first
+    for (const poster of priorityImages) {
+      const cacheKey = `${poster.webpPrimary}|${poster.webpFallback}|${poster.jpgFallback}`;
+      if (!globalImageCache.has(cacheKey)) {
+        try {
+          await preloadAlumniImage(poster.webpPrimary, poster.webpFallback, poster.jpgFallback);
+        } catch {
+          console.warn('Failed to preload image:', poster.fileName);
+        }
+      }
+    }
+
+    // Load remaining images in background with delay
+    setTimeout(async () => {
+      for (const poster of backgroundImages) {
+        const cacheKey = `${poster.webpPrimary}|${poster.webpFallback}|${poster.jpgFallback}`;
+        if (!globalImageCache.has(cacheKey)) {
+          try {
+            await preloadAlumniImage(poster.webpPrimary, poster.webpFallback, poster.jpgFallback);
+          } catch {
+            console.warn('Failed to preload image:', poster.fileName);
+          }
+          
+          // Small delay between loads to not overwhelm the network
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+    }, 1000);
+  };
 
   if (isLoading) {
     return (
-      <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Featured Alumni</h3>
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-gray-600 font-medium">Loading Alumni Posters...</p>
+      <div className="w-full py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
+            2025 Alumni Achievements
+          </h2>
+          <div className="flex justify-center items-center py-16">            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading alumni posters...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -28,61 +224,43 @@ const AlumniPostersSlider: React.FC = () => {  const [posters, setPosters] = use
 
   if (posters.length === 0) {
     return (
-      <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Featured Alumni</h3>
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <svg className="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 9a2 2 0 00-2 2v2m0 0V9a2 2 0 012-2h12a2 2 0 012 2v2M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"></path>
-          </svg>
-          <p className="text-gray-600 font-medium">No Alumni Posters Available</p>
-          <p className="text-gray-500 text-sm mt-1">Add poster images to the alumni folder to display them here</p>
+      <div className="w-full py-12">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
+            2025 Alumni Achievements
+          </h2>
+          <div className="text-center py-16">
+            <p className="text-gray-600">No alumni posters available at the moment.</p>
+          </div>
         </div>
       </div>
     );
-  }
-  return (
-    <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">2025 Alumnis</h3>
-        {/* Speed control - commented out for presentation
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-500">Speed:</span>
-          <input
-            type="range"
-            min="20"
-            max="100"
-            value={speed}
-            onChange={(e) => setSpeed(Number(e.target.value))}
-            className="w-16 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-          />
-        </div>
-        */}
+  }  return (
+    <div className="w-full pt-12 pb-6">
+      <div className="container mx-auto px-4">
+        <motion.h2
+          className="text-3xl font-bold text-center mb-8 text-gray-900"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          2025 Alumni Achievements
+        </motion.h2>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+        >          <InfiniteSlider gap={24} speed={50}>
+            {posters.map((poster, index) => (
+              <AlumniPoster 
+                key={`${poster.fileName}-${index}`}
+                poster={poster}
+                className="w-64 h-64 flex-shrink-0"
+              />
+            ))}          </InfiniteSlider>
+        </motion.div>
       </div>
-      
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 overflow-hidden">
-        <InfiniteSlider
-          gap={16}
-          speed={speed}
-          speedOnHover={speed * 0.3}
-          direction="horizontal"
-          reverse={false}
-          className="h-64"        >
-          {posters.map((poster) => (
-            <AlumniPoster
-              key={poster.fileName}
-              poster={poster}
-              className="w-64 h-64 flex-shrink-0"
-            />
-          ))}
-        </InfiniteSlider>
-      </div>      
-      {/* Bottom info text - commented out for presentation
-      <div className="mt-4 text-center">
-        <p className="text-sm text-gray-500">
-          Showing {posters.length} alumni achievement{posters.length !== 1 ? 's' : ''} • Hover to slow down
-        </p>
-      </div>
-      */}
     </div>
   );
 };

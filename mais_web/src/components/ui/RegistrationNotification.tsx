@@ -94,19 +94,30 @@ const RegistrationNotification = () => {
             <p className="text-gray-700 text-sm mb-2">
               <strong>Registration Period:</strong> June 16, 2025 (09:00) - June 20, 2025 (09:00)
             </p>
-          </div>
-            {/* Call to Action Button */}          <motion.a 
+          </div>          {/* Call to Action Button - Emphasized for important event */}
+          <motion.a 
             href="https://mongolaspiration.edu.mn/" 
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-accent text-white px-6 py-3 rounded-lg font-semibold hover:bg-accent-dark transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center text-sm md:text-base"
-            whileHover={{ scale: 1.05 }}
+            className="bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 rounded-xl font-bold hover:from-red-700 hover:to-red-800 transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-2 inline-flex items-center justify-center text-lg md:text-xl border-2 border-red-500 shadow-lg"
+            whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
+            animate={{ 
+              boxShadow: [
+                "0 0 0 0 rgba(239, 68, 68, 0.7)",
+                "0 0 0 10px rgba(239, 68, 68, 0)",
+                "0 0 0 0 rgba(239, 68, 68, 0)"
+              ]
+            }}
+            transition={{ 
+              boxShadow: { duration: 2, repeat: Infinity },
+              default: { duration: 0.3 }
+            }}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
             </svg>
-            Visit Registration Website
+            🚨 REGISTER NOW - OPENS SOON! 🚨
           </motion.a>
           
           {/* Additional Info */}

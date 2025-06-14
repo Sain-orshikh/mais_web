@@ -45,10 +45,10 @@ const NewsPage = () => {
               key={item.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-            >              <NewsCard
+              transition={{ duration: 0.6, delay: index * 0.1 }}            >              <NewsCard
                 title={item.title}
                 excerpt={item.excerpt}
+                imageUrl={item.imageUrl}
                 thumbnailUrl={item.thumbnailUrl}
                 href={`/news/${item.id}`}
               />

@@ -1,0 +1,49 @@
+{
+  "timestamp": "2025-06-14T14:15:20.261Z",
+  "account": "NEWS_JPG",
+  "cloud_name": "dyez98wtv",
+  "total_files": 6,
+  "uploaded": [
+    "news1",
+    "news2",
+    "news3",
+    "news4",
+    "news5",
+    "news6"
+  ],
+  "failed": [],
+  "success_count": 6,
+  "failure_count": 0,
+  "files_info": [
+    {
+      "filename": "news1.jpg",
+      "public_id": "news1",
+      "size_mb": "0.05"
+    },
+    {
+      "filename": "news2.jpg",
+      "public_id": "news2",
+      "size_mb": "0.16"
+    },
+    {
+      "filename": "news3.jpg",
+      "public_id": "news3",
+      "size_mb": "0.06"
+    },
+    {
+      "filename": "news4.jpg",
+      "public_id": "news4",
+      "size_mb": "0.04"
+    },
+    {
+      "filename": "news5.jpg",
+      "public_id": "news5",
+      "size_mb": "0.12"
+    },
+    {
+      "filename": "news6.jpg",
+      "public_id": "news6",
+      "size_mb": "0.08"
+    }
+  ]
+}

@@ -56,7 +56,7 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       <Navbar />
-      <div className="sm:pt-14">        <Suspense fallback={<LoadingComponent />}>          <Routes>
+      <div className="">        <Suspense fallback={<LoadingComponent />}>          <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/aboutus" element={<AboutUs />} />
             <Route path="/news/:id" element={<NewsArticle />} />

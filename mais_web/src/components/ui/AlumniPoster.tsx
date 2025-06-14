@@ -13,8 +13,9 @@ const AlumniPoster: React.FC<AlumniPosterProps> = ({
   poster, 
   className = '' 
 }) => {  const [ref, { src, isLoaded, hasError }] = useLazyImage({ 
-    webpSrc: poster.webpSrc, 
-    jpgSrc: poster.jpgSrc 
+    webpPrimary: poster.webpPrimary, 
+    webpFallback: poster.webpFallback,
+    jpgFallback: poster.jpgFallback
   });
   const [modalOpen, setModalOpen] = useState(false);
 

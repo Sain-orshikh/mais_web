@@ -1,4 +1,4 @@
-  import { useEffect } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -7,17 +7,16 @@ import WorldMap from './WorldMap';
 import SlidingHero from './ui/SlidingHero';
 import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
-import StudentLife from './StudentLife';
 import SchoolDirections from './SchoolDirections';
 import RegistrationNotification from './ui/RegistrationNotification';
 import { getAllNews } from '../data/manualNewsData';
 
-const Home = () => {  // School images from public folder
+const Home = () => {  // School images from public folder + Cloudinary
   const schoolImages = [
     '/pic1.jpg',
     '/pic2.jpg',
     '/pic3.jpg',
-    '/pic4.jpg'
+    'https://res.cloudinary.com/dyez98wtv/image/upload/v1749912073/misc/pic4.jpg'
   ];
   
   // Get news items from data
@@ -191,6 +190,7 @@ const Home = () => {  // School images from public folder
                 key={item.id}
                 title={item.title}
                 excerpt={item.excerpt}
+                imageUrl={item.imageUrl}
                 thumbnailUrl={item.thumbnailUrl}
                 href={`/news/${item.id}`}
               />
@@ -238,7 +238,6 @@ const Home = () => {  // School images from public folder
           </div>
       </section>
       <Statistics />      {/* Student Life Section */}
-      <StudentLife />      {/* School Directions Section */}
       <SchoolDirections />
 
       {/* Features Section
