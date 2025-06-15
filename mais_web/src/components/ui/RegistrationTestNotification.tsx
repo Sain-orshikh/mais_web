@@ -5,6 +5,7 @@ const RegistrationTestNotification = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   // Registration test event details
   const registrationEvent = {
@@ -30,6 +31,46 @@ const RegistrationTestNotification = () => {
 
     return () => clearTimeout(timer);
   }, []);
+  // Update countdown every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+  // Auto-hide when countdown expires
+  useEffect(() => {
+    const targetDate = new Date('2025-06-20T09:00:00');
+    const difference = targetDate.getTime() - currentTime.getTime();
+    
+    if (difference <= 0) {
+      setIsVisible(false);
+      setTimeout(() => {
+        setIsDismissed(true);
+      }, 300);
+    }
+  }, [currentTime]);
+
+  // Calculate countdown to June 20, 2025 09:00
+  const getCountdown = () => {
+    const targetDate = new Date('2025-06-20T09:00:00');
+    const now = currentTime;
+    const difference = targetDate.getTime() - now.getTime();
+
+    if (difference <= 0) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true };
+    }
+
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    return { days, hours, minutes, seconds, isExpired: false };
+  };
+
+  const countdown = getCountdown();
 
   const handleDismiss = () => {
     setIsVisible(false);
@@ -47,35 +88,31 @@ const RegistrationTestNotification = () => {
   const handleRegistrationClick = () => {
     window.open(registrationEvent.link, '_blank', 'noopener,noreferrer');
   };
-
   if (isDismissed) return null;
 
-  // Calculate time until registration opens
-  const now = new Date();
-  const timeUntilOpen = registrationEvent.openDate.getTime() - now.getTime();
-  const isRegistrationOpen = timeUntilOpen <= 0 && now < registrationEvent.closeDate;
-  const isRegistrationClosed = now >= registrationEvent.closeDate;
-  
-  // Calculate days/hours until opening
-  const daysUntilOpen = Math.ceil(timeUntilOpen / (1000 * 60 * 60 * 24));
-  const hoursUntilOpen = Math.ceil(timeUntilOpen / (1000 * 60 * 60));
-  
-  // Don't show if registration is closed
-  if (isRegistrationClosed) return null;  const getStatusInfo = () => {
-    if (isRegistrationOpen) {
+  // Don't show if countdown is expired (after June 20, 2025 09:00)
+  if (countdown.isExpired) return null;
+
+  const getStatusInfo = () => {
+    if (countdown.days === 0 && countdown.hours === 0) {
       return {
-        status: "OPEN NOW!",
-        urgency: "🟢 Registration is OPEN"
+        status: "LAST HOUR!",
+        urgency: "🔥 Registration closes soon!"
       };
-    } else if (daysUntilOpen <= 1) {
+    } else if (countdown.days === 0) {
       return {
-        status: hoursUntilOpen <= 24 ? `${hoursUntilOpen}h` : "Tomorrow",
-        urgency: "🔥 Opens Soon!"
+        status: "TODAY!",
+        urgency: "⏰ Last day to register!"
+      };
+    } else if (countdown.days <= 1) {
+      return {
+        status: "TOMORROW",
+        urgency: "� Registration closes tomorrow!"
       };
     } else {
       return {
-        status: `${daysUntilOpen}d`,
-        urgency: `📅 ${daysUntilOpen} days to go`
+        status: `${countdown.days} DAYS`,
+        urgency: `📅 ${countdown.days} days until deadline`
       };
     }
   };
@@ -161,17 +198,18 @@ const RegistrationTestNotification = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                         <span>June 16-20, 2025</span>
-                      </div>
-                      <div className="text-xs font-medium text-accent">
+                      </div>                      <div className="text-xs font-medium text-accent">
                         {statusInfo.urgency}
                       </div>
-                    </div>                      {/* CTA Button */}                    <motion.button 
+                    </div>
+
+                    {/* CTA Button */}                    <motion.button 
                       onClick={handleRegistrationClick}
                       className="bg-accent hover:bg-accent-dark text-white text-sm px-3 py-2 rounded flex items-center justify-center transition-colors w-full font-medium"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <span>{isRegistrationOpen ? "Register Now!" : "Visit Website"}</span>
+                      <span>Register Now!</span>
                       <svg className="ml-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
                       </svg>

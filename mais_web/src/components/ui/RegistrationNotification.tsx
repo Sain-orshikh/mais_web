@@ -8,9 +8,10 @@ const RegistrationNotification = () => {
     minutes: 0,
     seconds: 0
   });
+  const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    const targetDate = new Date('2025-06-16T09:00:00').getTime();
+    const targetDate = new Date('2025-06-20T09:00:00').getTime();
 
     const timer = setInterval(() => {
       const now = new Date().getTime();
@@ -25,11 +26,15 @@ const RegistrationNotification = () => {
         });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        setIsExpired(true);
       }
     }, 1000);
 
     return () => clearInterval(timer);
   }, []);
+
+  // Don't render if timer has expired
+  if (isExpired) return null;
 
   return (
     <motion.section 
@@ -56,10 +61,9 @@ const RegistrationNotification = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
           </motion.div>
-          
-          {/* Content */}
+            {/* Content */}
           <h2 className="text-xl md:text-2xl font-bold mb-3 text-gray-900">
-            🎓 Admissions Test Registration Opens Soon!
+            🎓 Admissions Test Registration Deadline!
           </h2>
           
           {/* Countdown Timer */}
@@ -68,7 +72,7 @@ const RegistrationNotification = () => {
               <svg className="w-5 h-5 text-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <span className="text-gray-900 font-semibold text-lg">Registration Opens In</span>
+              <span className="text-gray-900 font-semibold text-lg">Registration Closes In</span>
             </div>
             
             {/* Countdown Display */}
@@ -90,9 +94,8 @@ const RegistrationNotification = () => {
                 <div className="text-sm text-gray-600 font-medium">Seconds</div>
               </div>
             </div>
-            
-            <p className="text-gray-700 text-sm mb-2">
-              <strong>Registration Period:</strong> June 16, 2025 (09:00) - June 20, 2025 (09:00)
+              <p className="text-gray-700 text-sm mb-2">
+              <strong>Registration Deadline:</strong> June 20, 2025 (09:00)
             </p>
           </div>          {/* Call to Action Button - Emphasized for important event */}
           <motion.a 
@@ -117,12 +120,11 @@ const RegistrationNotification = () => {
             <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
             </svg>
-            🚨 REGISTER NOW - OPENS SOON! 🚨
+            🚨 REGISTER NOW - DEADLINE APPROACHING! 🚨
           </motion.a>
-          
-          {/* Additional Info */}
+            {/* Additional Info */}
           <p className="text-gray-600 text-xs mt-4">
-            Don't miss your chance to join MAIS - Limited spots available
+            Don't miss the deadline! Register before June 20, 2025 - Limited spots available
           </p>
         </div>
       </div>
