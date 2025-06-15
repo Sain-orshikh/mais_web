@@ -2,6 +2,8 @@ import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useHomeTranslation } from '../translations/useTranslation';
+import TranslationLoading from './TranslationLoading';
 
 // Add custom styles for the labels
 const labelStyles = `
@@ -139,22 +141,10 @@ const SHOPPING_CENTER_LOCATION = {
   lng: 106.94623516069221
 };
 
-const SCHOOL_INFO = {
-  name: "Mongol Aspiration International School",
-  description: "Mongol Aspiration International School",
-  address: "Ulaanbaatar, Mongolia", // Replace with actual address
-  phone: "+976 77110139", // Actual MAIS phone number
-  website: "https://mongolaspiration.com" // Replace with actual website
-};
-
-const SHOPPING_CENTER_INFO = {
-  name: "Dunjingarav Shopping Center",
-  description: "Shopping and commercial center"
-};
-
 const SchoolDirections = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
+  const { t, loading, error } = useHomeTranslation();
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -165,10 +155,9 @@ const SchoolDirections = () => {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${SCHOOL_LOCATION.lat},${SCHOOL_LOCATION.lng}`;
     window.open(url, '_blank');
   };
-
   // Initialize Leaflet map
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current || loading || !t) return;
 
     // Handle window resize for mobile orientation changes
     const handleResize = () => {
@@ -220,54 +209,48 @@ const SchoolDirections = () => {
       // Force map to invalidate size after a short delay for mobile
       setTimeout(() => {
         map.invalidateSize();
-      }, 100);
-
-      // Create school marker with red icon
+      }, 100);      // Create school marker with red icon
       const schoolMarker = L.marker([SCHOOL_LOCATION.lat, SCHOOL_LOCATION.lng], {
         icon: SchoolIcon,
-        title: SCHOOL_INFO.name
+        title: t.schoolDirections.schoolInfo.name
       }).addTo(map);
 
       // Add permanent label for school
-      schoolMarker.bindTooltip(SCHOOL_INFO.name, {
+      schoolMarker.bindTooltip(t.schoolDirections.schoolInfo.name, {
         permanent: true,
         direction: 'left',
         offset: [-10, -5],
         className: 'school-label'
-      });
-
-      // Add popup with school information
+      });// Add popup with school information
       schoolMarker.bindPopup(`
         <div style="text-align: center; padding: 8px; max-width: 250px;">
           <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: bold; color: #dc2626;">
-            ${SCHOOL_INFO.name}
+            ${t.schoolDirections.schoolInfo.name}
           </h3>
           <p style="margin: 0 0 8px 0; font-size: 14px; color: #374151; font-weight: 500;">
-            ${SCHOOL_INFO.description}
+            ${t.schoolDirections.schoolInfo.description}
           </p>
           <p style="margin: 0 0 5px 0; font-size: 13px; color: #64748b;">
-            ${SCHOOL_INFO.address}
+            ${t.schoolDirections.schoolInfo.address}
           </p>
           <p style="margin: 0 0 10px 0; font-size: 13px; color: #64748b;">
-            ${SCHOOL_INFO.phone}
+            ${t.schoolDirections.schoolInfo.phone}
           </p>
           <button 
             onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SCHOOL_LOCATION.lat},${SCHOOL_LOCATION.lng}', '_blank')"
             style="background: #dc2626; color: white; padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;"
           >
-            Get Directions
+            ${t.schoolDirections.getDirections}
           </button>
         </div>
-      `);
-
-      // Create shopping center marker with blue icon (smaller)
+      `);      // Create shopping center marker with blue icon (smaller)
       const shoppingCenterMarker = L.marker([SHOPPING_CENTER_LOCATION.lat, SHOPPING_CENTER_LOCATION.lng], {
         icon: ShoppingCenterIcon,
-        title: SHOPPING_CENTER_INFO.name
+        title: t.schoolDirections.shoppingCenter.name
       }).addTo(map);
 
       // Add permanent label for shopping center
-      shoppingCenterMarker.bindTooltip(SHOPPING_CENTER_INFO.name, {
+      shoppingCenterMarker.bindTooltip(t.schoolDirections.shoppingCenter.name, {
         permanent: true,
         direction: 'right',
         offset: [8, -3],
@@ -278,16 +261,16 @@ const SchoolDirections = () => {
       shoppingCenterMarker.bindPopup(`
         <div style="text-align: center; padding: 8px; max-width: 200px;">
           <h3 style="margin: 0 0 4px 0; font-size: 15px; font-weight: bold; color: #2563eb;">
-            ${SHOPPING_CENTER_INFO.name}
+            ${t.schoolDirections.shoppingCenter.name}
           </h3>
           <p style="margin: 0 0 8px 0; font-size: 13px; color: #374151;">
-            ${SHOPPING_CENTER_INFO.description}
+            ${t.schoolDirections.shoppingCenter.description}
           </p>
           <button 
             onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=${SHOPPING_CENTER_LOCATION.lat},${SHOPPING_CENTER_LOCATION.lng}', '_blank')"
             style="background: #2563eb; color: white; padding: 5px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 11px;"
           >
-            Get Directions
+            ${t.schoolDirections.getDirections}
           </button>
         </div>
       `);
@@ -306,9 +289,12 @@ const SchoolDirections = () => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
-      }
-    };
-  }, []);
+      }    };
+  }, [loading, t]);
+  // Show loading state while translations are being loaded
+  if (loading || !t) {
+    return <TranslationLoading error={error} />;
+  }
 
   return (
     <motion.section 
@@ -321,7 +307,7 @@ const SchoolDirections = () => {
       <div className="container mx-auto px-4">
         <motion.div className="text-center mb-12" variants={fadeInUp}>
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Find Us on the Map
+            {t.schoolDirections.title}
           </h2>
         </motion.div>
 
@@ -344,15 +330,15 @@ const SchoolDirections = () => {
             <div className="p-4 sm:p-6 bg-gray-50">
               <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div className="text-center md:text-left">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{SCHOOL_INFO.name}</h3>
-                  <p className="text-sm sm:text-base text-gray-600">{SCHOOL_INFO.address}</p>
-                  <p className="text-sm sm:text-base text-gray-600">{SCHOOL_INFO.phone}</p>
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2">{t.schoolDirections.schoolInfo.name}</h3>
+                  <p className="text-sm sm:text-base text-gray-600">{t.schoolDirections.schoolInfo.address}</p>
+                  <p className="text-sm sm:text-base text-gray-600">{t.schoolDirections.schoolInfo.phone}</p>
                 </div>
                 <button
                   onClick={openDirections}
                   className="bg-blue-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm sm:text-base w-full md:w-auto"
                 >
-                  Get Directions
+                  {t.schoolDirections.getDirections}
                 </button>
               </div>
             </div>

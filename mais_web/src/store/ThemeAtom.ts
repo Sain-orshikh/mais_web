@@ -2,11 +2,13 @@ import { atomWithStorage } from "jotai/utils";
 import { atom } from "jotai";
 import type { Getter, Setter } from "jotai";
 
-export const Language = atomWithStorage("language", "EN");
+export type LanguageType = "en" | "mn";
+
+export const Language = atomWithStorage<LanguageType>("language", "mn");
 
 export const setLanguage = atom(
   null, 
-  (_get: Getter, set: Setter, value: string) => {
+  (_get: Getter, set: Setter, value: LanguageType) => {
     set(Language, value);
   }
 );

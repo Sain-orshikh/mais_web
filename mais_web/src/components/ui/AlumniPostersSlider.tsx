@@ -4,6 +4,7 @@ import { generateAlumniPosters } from '../../utils/alumniPosters';
 import type { AlumniPosterData } from '../../utils/alumniPosters';
 import AlumniPoster from './AlumniPoster';
 import { InfiniteSlider } from '../animation/infiniteslider';
+import { useHomeTranslation } from '../../translations/useTranslation';
 
 // Global persistent cache that survives component remounts and page reloads
 interface CachedImage {
@@ -129,6 +130,7 @@ const preloadAlumniImage = async (webpPrimary: string, webpFallback: string, jpg
 };
 
 const AlumniPostersSlider: React.FC = () => {
+  const { t } = useHomeTranslation();
   const [posters, setPosters] = useState<AlumniPosterData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
@@ -204,47 +206,45 @@ const AlumniPostersSlider: React.FC = () => {
       }
     }, 1000);
   };
-
   if (isLoading) {
     return (
       <div className="w-full py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
-            2025 Alumni Achievements
+            {t?.alumniAchievements.title || "2025 Alumni Achievements"}
           </h2>
-          <div className="flex justify-center items-center py-16">            <div className="text-center">
+          <div className="flex justify-center items-center py-16">
+            <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading alumni posters...</p>
+              <p className="text-gray-600">{t?.alumniAchievements.loading || "Loading alumni posters..."}</p>
             </div>
           </div>
         </div>
       </div>
     );
   }
-
   if (posters.length === 0) {
     return (
       <div className="w-full py-12">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8 text-gray-900">
-            2025 Alumni Achievements
+            {t?.alumniAchievements.title || "2025 Alumni Achievements"}
           </h2>
           <div className="text-center py-16">
-            <p className="text-gray-600">No alumni posters available at the moment.</p>
+            <p className="text-gray-600">{t?.alumniAchievements.noPosters || "No alumni posters available at the moment."}</p>
           </div>
         </div>
       </div>
     );
-  }  return (
+  }return (
     <div className="w-full pt-12 pb-6">
-      <div className="container mx-auto px-4">
-        <motion.h2
+      <div className="container mx-auto px-4">        <motion.h2
           className="text-3xl font-bold text-center mb-8 text-gray-900"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          2025 Alumni Achievements
+          {t?.alumniAchievements.title || "2025 Alumni Achievements"}
         </motion.h2>
         
         <motion.div

@@ -11,24 +11,7 @@ import NewsPage from "./components/NewsPage";
 import AboutUs from "./components/AboutUs";
 import WorkInProgress from "./components/WorkInProgress";
 
-// Pre-load TipTap core components to avoid duplication
-const preloadTipTapCore = () => import("@tiptap/react");
-
-// Lazy load the components that use TipTap editor with improved naming to help with webpack chunks
-const EditNewsPage = lazy(() => {
-  console.time("EditNewsPage-load");
-  return Promise.all([
-    import("./components/Admin/News/Edit"),
-    preloadTipTapCore() // Ensure TipTap core is loaded beforehand
-  ])
-    .then(([moduleExport]) => {
-      console.timeEnd("EditNewsPage-load");
-      return moduleExport;
-    });
-});
-
 const AdminPage = lazy(() => import("./components/Admin/AdminPage"));
-const CreatePage = lazy(() => import("./components/Admin/Management/CreateUser"));
 
 // Loading component for Suspense fallback
 const LoadingComponent = () => (
@@ -63,12 +46,9 @@ function App() {
             <Route path="/news" element={<NewsPage />} />
             
             {/* Work in Progress route - needs to be before /:id */}
-            <Route path="/wip" element={<WorkInProgress />} />
-            
+            <Route path="/wip" element={<WorkInProgress />} />            
             {/* Admin routes */}
             <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/create" element={<CreatePage />} />
-            <Route path="/admin/publish" element={<EditNewsPage />} />
             
             {/* Profile route for individual alumni - this should come after specific routes */}
             <Route path="/:id" element={<Profile />} />

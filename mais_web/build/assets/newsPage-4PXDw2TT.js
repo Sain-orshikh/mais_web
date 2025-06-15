@@ -1,0 +1,2 @@
+const e={hero:{title:"Сүүлийн үеийн мэдээ & мэдээлэл",subtitle:"Сургуулийн сүүлийн үеийн мэдээ, мэдээлэл, зарлалуудаас хабардаг байгаарай"},backToHome:"Нүүр хуудас руу буцах",article:{backToNews:"Мэдээ рүү буцах",invalidArticle:"Буруу мэдээний нийтлэл",articleNotFound:"Нийтлэл олдсонгүй",articleNotFoundDescription:"Таны хайж буй мэдээний нийтлэл олдсонгүй.",shareTitle:"Энэ нийтлэлийг хуваалцах",socialMedia:{twitter:"Твиттер",facebook:"Фэйсбүүк",copyLink:"Холбоосыг хуулах"}}};export{e as default};
+//# sourceMappingURL=newsPage-4PXDw2TT.js.map

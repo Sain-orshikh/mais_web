@@ -1,7 +1,13 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useHomeTranslation } from '../../translations/useTranslation';
+import TranslationLoading from '../TranslationLoading';
+import { useAtom } from 'jotai';
+import { isMenuOpen } from '../../store/ThemeAtom';
 
 const RegistrationNotification = () => {
+  const { t, loading, error } = useHomeTranslation();
+  const [menuOpen] = useAtom(isMenuOpen);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -31,10 +37,13 @@ const RegistrationNotification = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, []);  // Don't render if timer has expired or menu is open
+  if (isExpired || menuOpen) return null;
 
-  // Don't render if timer has expired
-  if (isExpired) return null;
+  // Show loading state while translations are being loaded
+  if (loading || !t) {
+    return <TranslationLoading error={error} />;
+  }
 
   return (
     <motion.section 
@@ -60,10 +69,9 @@ const RegistrationNotification = () => {
             <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
             </svg>
-          </motion.div>
-            {/* Content */}
+          </motion.div>            {/* Content */}
           <h2 className="text-xl md:text-2xl font-bold mb-3 text-gray-900">
-            🎓 Admissions Test Registration Deadline!
+            {t.registrationNotification.title}
           </h2>
           
           {/* Countdown Timer */}
@@ -72,32 +80,32 @@ const RegistrationNotification = () => {
               <svg className="w-5 h-5 text-accent mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <span className="text-gray-900 font-semibold text-lg">Registration Closes In</span>
+              <span className="text-gray-900 font-semibold text-lg">{t.registrationNotification.registrationClosesIn}</span>
             </div>
             
             {/* Countdown Display */}
             <div className="grid grid-cols-4 gap-4 mb-4">
               <div className="bg-accent/10 rounded-lg p-3">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{timeLeft.days}</div>
-                <div className="text-sm text-gray-600 font-medium">Days</div>
+                <div className="text-sm text-gray-600 font-medium">{t.registrationNotification.days}</div>
               </div>
               <div className="bg-accent/10 rounded-lg p-3">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{timeLeft.hours}</div>
-                <div className="text-sm text-gray-600 font-medium">Hours</div>
+                <div className="text-sm text-gray-600 font-medium">{t.registrationNotification.hours}</div>
               </div>
               <div className="bg-accent/10 rounded-lg p-3">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{timeLeft.minutes}</div>
-                <div className="text-sm text-gray-600 font-medium">Minutes</div>
+                <div className="text-sm text-gray-600 font-medium">{t.registrationNotification.minutes}</div>
               </div>
               <div className="bg-accent/10 rounded-lg p-3">
                 <div className="text-2xl md:text-3xl font-bold text-gray-900">{timeLeft.seconds}</div>
-                <div className="text-sm text-gray-600 font-medium">Seconds</div>
+                <div className="text-sm text-gray-600 font-medium">{t.registrationNotification.seconds}</div>
               </div>
             </div>
               <p className="text-gray-700 text-sm mb-2">
-              <strong>Registration Deadline:</strong> June 20, 2025 (09:00)
+              <strong>{t.registrationNotification.deadline}</strong> {t.registrationNotification.deadlineDate}
             </p>
-          </div>          {/* Call to Action Button - Emphasized for important event */}
+          </div>{/* Call to Action Button - Emphasized for important event */}
           <motion.a 
             href="https://mongolaspiration.edu.mn/" 
             target="_blank"
@@ -115,16 +123,15 @@ const RegistrationNotification = () => {
             transition={{ 
               boxShadow: { duration: 2, repeat: Infinity },
               default: { duration: 0.3 }
-            }}
-          >
-            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-            </svg>
-            🚨 REGISTER NOW - DEADLINE APPROACHING! 🚨
-          </motion.a>
+            }}            >
+              <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+              </svg>
+              {t.registrationNotification.registerButton}
+            </motion.a>
             {/* Additional Info */}
           <p className="text-gray-600 text-xs mt-4">
-            Don't miss the deadline! Register before June 20, 2025 - Limited spots available
+            {t.registrationNotification.additionalInfo}
           </p>
         </div>
       </div>

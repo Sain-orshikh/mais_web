@@ -10,54 +10,14 @@ import NewsCard from './ui/NewsCard';
 import SchoolDirections from './SchoolDirections';
 import RegistrationNotification from './ui/RegistrationNotification';
 import RegistrationTestNotification from './ui/RegistrationTestNotification';
-import { getAllNews } from '../data/manualNewsData';
+import { getAllLocalizedNews } from '../data/localizedNewsData';
+import { useHomeTranslation } from '../translations/useTranslation';
+import TranslationLoading from './TranslationLoading';
+import { useAtom } from 'jotai';
+import { isMenuOpen } from '../store/ThemeAtom';
 
-const Home = () => {  // School images from public folder + Cloudinary
-  const schoolImages = [
-    '/pic1.jpg',
-    '/pic2.jpg',
-    '/pic3.jpg',
-    'https://res.cloudinary.com/dyez98wtv/image/upload/v1749912073/misc/pic4.jpg'
-  ];
-  
-  // Get news items from data
-  const newsItems = getAllNews();
-
-  // Sample upcoming events
-  const upcomingEvents = [
-    { 
-      id: 1, 
-      title: "Grade 12 Graduation Ceremony", 
-      date: "2025-06-15", 
-      time: "10:00 AM", 
-      location: "Main Auditorium",
-      category: "Ceremony"
-    },
-    { 
-      id: 2, 
-      title: "International Science Fair", 
-      date: "2025-06-20", 
-      time: "2:00 PM", 
-      location: "Science Building",
-      category: "Academic"
-    },
-    { 
-      id: 3, 
-      title: "Summer Camp Registration", 
-      date: "2025-06-25", 
-      time: "9:00 AM", 
-      location: "Administration Office",
-      category: "Registration"
-    }
-  ];
-  
-  // Animation for scroll reveal
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
-  };
-
-  // Hook for detecting when elements are in view
+const Home = () => {
+  // Hook for detecting when elements are in view - must be at the top
   const useScrollAnimation = () => {
     const controls = useAnimation();
     const [ref, inView] = useInView({ threshold: 0.2, triggerOnce: true });
@@ -70,237 +30,138 @@ const Home = () => {  // School images from public folder + Cloudinary
     
     return { ref, controls };
   };  const { ref: newsRef, controls: newsControls } = useScrollAnimation();
+    const { t, loading, error, language } = useHomeTranslation();
+  const [menuOpen] = useAtom(isMenuOpen);
+
+  // Show loading state while translations are being loaded
+  if (loading || !t) {
+    return <TranslationLoading error={error} />;
+  }
+
+  // School images from public folder + Cloudinary
+  const schoolImages = [
+    '/pic1.jpg',
+    '/pic2.jpg',
+    '/pic3.jpg',
+    'https://res.cloudinary.com/dyez98wtv/image/upload/v1749912073/misc/pic4.jpg'
+  ];
+    // Get news items from data
+  const newsItems = getAllLocalizedNews(language);
+  // Sample upcoming events
+  const upcomingEvents = t.events.eventData;
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 60 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8 } }
+  };
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section with Sliding Background */}
-      <section className="relative h-screen">
-        <SlidingHero images={schoolImages} interval={7000} overlayOpacity={0.6}>
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center px-4 max-w-4xl">
-              <motion.h1 
-                className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 text-white drop-shadow-lg"
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              >
-                Welcome to MAIS
-              </motion.h1>
-              <motion.p 
-                className="text-xl md:text-2xl mb-8 text-white drop-shadow-md"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-              >
-                Mongol Aspiration International School
-              </motion.p>              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 1 }}
-              >                <Link 
-                  to="/aboutus" 
-                  className="bg-white text-accent-dark px-8 py-3 rounded-full text-lg font-semibold hover:bg-accent-50 transition-all hover:shadow-lg transform hover:-translate-y-1"
+      {/* Hero Section with sliding background */}
+      <div className="relative h-screen">        <SlidingHero images={schoolImages} />
+          {/* Hero content overlay */}
+        {!menuOpen && (
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center z-20">
+            <motion.div 
+              className="text-center text-white px-4 max-w-4xl mx-auto relative z-30"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+            >
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
+                {t.hero.title}
+              </h1>            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto leading-relaxed">
+                {t.hero.subtitle}
+              </p>            <Link to="/aboutus" className="relative z-40 inline-block">
+                <motion.div
+                  className="bg-accent hover:bg-accent-dark text-white font-bold py-4 px-8 rounded-full text-lg transition-all duration-300 hover:shadow-2xl transform hover:-translate-y-2 relative z-40 cursor-pointer inline-block"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  Learn More About Us
-                </Link>
-              </motion.div>
-            </div>
+                  {t.hero.buttonText}
+                </motion.div>
+              </Link>
+            </motion.div>
           </div>
-          
-          {/* Scroll down indicator */}        </SlidingHero>
-      </section>
+        )}
+      </div>
 
       {/* Registration Notification */}
       <RegistrationNotification />
 
-      {/*{/* Call to Action Section
-      <motion.section 
-        ref={ctaRef}
-        variants={fadeInUp}
-        initial="hidden"
-        animate={ctaControls}
-        className="relative py-16 bg-white overflow-hidden"
-      >
-        {/* Background Pattern
-        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-success/5 to-accent/5"></div>
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 w-64 h-64 bg-accent/10 rounded-full -translate-x-32 -translate-y-32"></div>
-          <div className="absolute bottom-0 right-0 w-96 h-96 bg-success/10 rounded-full translate-x-48 translate-y-48"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            {/* Icon 
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-accent/10 rounded-full mb-6">
-              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-              </svg>
-            </div>            {/* Content
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">
-              Ready to Join Our Community?
-            </h2>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-              Discover how MAIS can help shape your future with our world-class education and supportive community.
-            </p>
-            
-            {/* Buttons
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link 
-                to="/wip" 
-                className="bg-accent text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent-dark transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                Learn More
-              </Link>              <Link 
-                to="/wip" 
-                className="bg-white border-2 border-accent text-accent px-8 py-3 rounded-lg text-lg font-semibold hover:bg-accent hover:text-white transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1 inline-flex items-center justify-center"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="#3b82f6" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                </svg>
-                Contact Us
-              </Link>
-            </div>
-          </div>
-        </div>
-      </motion.section>*/}
-
-      {/* Latest News Section */}
+      {/* News Section */}
       <motion.section 
         ref={newsRef}
         variants={fadeInUp}
         initial="hidden"
         animate={newsControls}
-        className="py-12 bg-white"
-      ><div className="container mx-auto px-4">          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Latest News</h2>            <Link 
-              to="/news" 
-              className="text-gray-900 hover:text-gray-700 font-medium text-sm inline-flex items-center group"
-            >
-              View All
-              <div className="ml-2 w-8 h-8 bg-accent rounded-md flex items-center justify-center group-hover:bg-accent-dark transition-colors">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </Link>
-          </div>          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">            {newsItems.map((item) => (
-              <NewsCard
+        className="py-20 bg-gray-50"
+      >        <div className="container mx-auto px-4">          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">{t.news.title}</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {newsItems.map((item, index) => (
+              <motion.div 
                 key={item.id}
-                title={item.title}
-                excerpt={item.excerpt}
-                imageUrl={item.imageUrl}
-                thumbnailUrl={item.thumbnailUrl}
-                href={`/news/${item.id}`}
-              />
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <NewsCard {...item} href={`/news/${item.id}`} />
+              </motion.div>
             ))}
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link to="/news" className="bg-accent hover:bg-accent-dark text-white font-bold py-3 px-6 rounded-lg transition-all duration-300">
+              {t.news.viewAll}
+            </Link>
           </div>
         </div>
       </motion.section>
 
-      {/* Upcoming Events Section */}
-      <section className="py-12 bg-gray-50">        <div className="container mx-auto px-4">          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Upcoming Events</h2>
-            <Link 
-              to="/wip" 
-              className="text-gray-900 hover:text-gray-700 font-medium text-sm inline-flex items-center group"
-            >
-              View All
-              <div className="ml-2 w-8 h-8 bg-accent rounded-md flex items-center justify-center group-hover:bg-accent-dark transition-colors">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-            {upcomingEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                date={event.date}
-                title={event.title}
-                time={event.time}
-                location={event.location}
-                category={event.category}
-                href="/events"
-              />
+      {/* Events Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">{t.events.title}</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {upcomingEvents.map((event, index) => (
+              <motion.div 
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <EventCard {...event} />
+              </motion.div>
             ))}
+          </div>
+            <div className="text-center mt-10">
+            <Link to="/wip" className="bg-accent hover:bg-accent-dark text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 inline-block">
+              {t.events.viewAll}
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Statistics Section */}  
       {/* World Map Section */}
-      <section className="p-12">
-          <div>
-            <WorldMap />
-          </div>
-      </section>
-      <Statistics />      {/* Student Life Section */}
-      <SchoolDirections />
-
-      {/* Features Section
-      <motion.section 
-        ref={featuresRef}
-        variants={fadeInUp}
-        initial="hidden"
-        animate={featuresControls}
-        className="py-20 bg-white"
-      >
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Why Choose MAIS?</h2>
-          <p className="text-gray-600 text-center mb-12 max-w-3xl mx-auto">Our school offers a unique learning environment designed to nurture global citizens ready for tomorrow's challenges.</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">            <motion.div 
-              className="p-6 bg-accent-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-accent"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="bg-accent-100 w-14 h-14 rounded-full flex items-center justify-center mb-5">
-                <svg className="w-7 h-7 text-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">International Curriculum</h3>
-              <p className="text-gray-600">Following Cambridge International standards for global education excellence with experienced educators from around the world.</p>
-            </motion.div>
-              <motion.div 
-              className="p-6 bg-success-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-success"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="bg-success-100 w-14 h-14 rounded-full flex items-center justify-center mb-5">
-                <svg className="w-7 h-7 text-success-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Diverse Community</h3>
-              <p className="text-gray-600">A multicultural environment that fosters global understanding and collaboration with students and staff from 15+ countries.</p>
-            </motion.div>
-              <motion.div 
-              className="p-6 bg-accent-50 rounded-lg shadow-sm hover:shadow-md transition-shadow border-l-4 border-accent"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="bg-accent-100 w-14 h-14 rounded-full flex items-center justify-center mb-5">
-                <svg className="w-7 h-7 text-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-4">Modern Facilities</h3>
-              <p className="text-gray-600">State-of-the-art facilities designed for optimal learning including science labs, digital classrooms, and sports complexes.</p>
-            </motion.div>
-          </div>
-        </div>      </motion.section>
+          <WorldMap />
+        </div>
+      </section>
+
+      <Statistics />
+
+      <SchoolDirections />
 
       {/* Footer Section */}
       <footer className="bg-slate-900 text-white">
         <div className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {/* School Info */}
-            <div className="md:col-span-1">              <div className="flex items-center mb-4">
+            <div className="md:col-span-1">
+              <div className="flex items-center mb-4">
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mr-3 p-2">
                   <img
                     src='/mais_logo_light.png'
@@ -309,13 +170,14 @@ const Home = () => {  // School images from public folder + Cloudinary
                   />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold">Mongol Aspiration</h3>
-                  <p className="text-sm text-gray-300">International School</p>
+                  <h3 className="text-lg font-semibold">{t?.footer.school.name}</h3>
+                  <p className="text-sm text-gray-300">{t?.footer.school.subtitle}</p>
                 </div>
               </div>
               <p className="text-gray-300 text-sm mb-4">
-                Nurturing global citizens through excellence in education, innovation, and character development.
-              </p>              <div className="flex space-x-4">
+                {t?.footer.school.description}
+              </p>
+              <div className="flex space-x-4">
                 <a href="#" className="text-gray-300 hover:text-accent transition-colors">
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
@@ -341,79 +203,35 @@ const Home = () => {  // School images from public folder + Cloudinary
 
             {/* Quick Links */}
             <div>
-              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2">                <li>
-                  <Link to="/aboutus" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    About MAIS
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Admissions
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Academics
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Student Profiles
-                  </Link>
-                </li>                <li>
-                  <Link to="/news" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    News & Events
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Careers
-                  </Link>
-                </li>
+              <h4 className="text-lg font-semibold mb-4">{t?.footer.quickLinks.title}</h4>
+              <ul className="space-y-2">
+                {t?.footer.quickLinks.links.map((link, index) => (
+                  <li key={index}>
+                    <Link to={link.href} className="text-gray-300 hover:text-white transition-colors text-sm">
+                      {link.text}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Programs */}
             <div>
-              <h4 className="text-lg font-semibold mb-4">Programs</h4>
+              <h4 className="text-lg font-semibold mb-4">{t?.footer.programs.title}</h4>
               <ul className="space-y-2">
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Primary School
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Secondary School
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Cambridge IGCSE
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    A-Levels
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Language Programs
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
-                    Extracurriculars
-                  </a>
-                </li>
+                {t?.footer.programs.items.map((program, index) => (
+                  <li key={index}>
+                    <a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">
+                      {program}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
 
             {/* Contact Info */}
             <div>
-              <h4 className="text-lg font-semibold mb-4">Contact Us</h4>
+              <h4 className="text-lg font-semibold mb-4">{t?.footer.contact.title}</h4>
               <div className="space-y-3">
                 <div className="flex items-start">
                   <svg className="w-5 h-5 text-accent mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -421,28 +239,32 @@ const Home = () => {  // School images from public folder + Cloudinary
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
                   <div>
-                    <p className="text-gray-300 text-sm">Ulaanbaatar, Mongolia</p>
-                    <p className="text-gray-300 text-sm">Peace Avenue 123</p>
+                    <p className="text-gray-300 text-sm">{t?.footer.contact.address.city}</p>
+                    <p className="text-gray-300 text-sm">{t?.footer.contact.address.street}</p>
                   </div>
-                </div>                <div className="flex items-center">
+                </div>
+                <div className="flex items-center">
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                   </svg>
                   <div className='flex flex-col space-y-2'>
-                  <p className="text-gray-300 text-sm">+976 77110139</p>
-                  <p className="text-gray-300 text-sm">+976 77110339</p>
+                    {t?.footer.contact.phones.map((phone, index) => (
+                      <p key={index} className="text-gray-300 text-sm">{phone}</p>
+                    ))}
                   </div>
-                </div>                <div className="flex items-center">
+                </div>
+                <div className="flex items-center">
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                   </svg>
-                  <p className="text-gray-300 text-sm">info@mongolaspiration.edu.mn</p>
-                </div>                <div className="flex items-center">
+                  <p className="text-gray-300 text-sm">{t?.footer.contact.email}</p>
+                </div>
+                <div className="flex items-center">
                   <svg className="w-5 h-5 text-accent mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                   </svg>
                   <div>
-                    <p className="text-gray-300 text-sm">Mon - Fri: 9:00 - 17:00</p>
+                    <p className="text-gray-300 text-sm">{t?.footer.contact.hours}</p>
                   </div>
                 </div>
               </div>
@@ -454,23 +276,20 @@ const Home = () => {  // School images from public folder + Cloudinary
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
                 <p className="text-gray-300 text-sm">
-                  © 2025 Mongol Aspiration International School. All rights reserved.
+                  {t?.footer.bottom.copyright}
                 </p>
               </div>
               <div className="flex space-x-6">
-                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Privacy Policy
-                </Link>
-                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Terms of Service
-                </Link>
-                <Link to="/wip" className="text-gray-300 hover:text-white transition-colors text-sm">
-                  Cookie Policy
-                </Link>
+                {t?.footer.bottom.links.map((link, index) => (
+                  <Link key={index} to={link.href} className="text-gray-300 hover:text-white transition-colors text-sm">
+                    {link.text}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-        </div>      </footer>
+        </div>
+      </footer>
       
       {/* Fixed Registration Test Notification */}
       <RegistrationTestNotification />

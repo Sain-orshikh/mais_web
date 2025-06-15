@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import { getCountryAlumniData, getUniversitiesByCountry } from '../data/alumniData';
 import AlumniPopup from './ui/AlumniPopup';
 import AlumniPostersSlider from './ui/AlumniPostersSlider';
+import { useHomeTranslation } from '../translations/useTranslation';
 
 interface CountryData {
   country: string;
@@ -89,33 +90,8 @@ const generateCountryData = (): CountryData[] => {
 
 const countryData: CountryData[] = generateCountryData();
 
-const countryNames: { [key: string]: string } = {
-  "US": "United States",
-  "GB": "United Kingdom", 
-  "CN": "China",
-  "AU": "Australia",
-  "CA": "Canada",
-  "DE": "Germany",
-  "FR": "France",
-  "JP": "Japan",
-  "KR": "South Korea",
-  "MN": "Mongolia",
-  "AT": "Austria",
-  "HK": "Hong Kong",
-  "IT": "Italy",
-  "KG": "Kyrgyzstan",
-  "PL": "Poland",
-  "RO": "Romania",
-  "RU": "Russia",
-  "ES": "Spain",
-  "TW": "Taiwan",
-  "TR": "Turkey",
-  "UA": "Ukraine",
-  "CZ": "Czech Republic",
-  "HU": "Hungary"
-};
-
 const WorldMapComponent = () => {
+  const { t } = useHomeTranslation();
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
@@ -153,21 +129,25 @@ const WorldMapComponent = () => {
 
   // Filter country data based on search term
   const filteredCountryData = useMemo(() => {
-    if (searchTerm === '') return countryData;
+    if (!t || searchTerm === '') return countryData;
     
     return countryData.filter(country => {
-      const countryName = countryNames[country.country] || country.country;
+      const countryName = t.worldMap.countryNames[country.country] || country.country;
       const universities = getUniversitiesByCountry(country.country);
       
       return countryName.toLowerCase().includes(searchTerm.toLowerCase()) ||
              universities.some(uni => uni.name.toLowerCase().includes(searchTerm.toLowerCase()));
     });
-  }, [searchTerm]);
+  }, [searchTerm, t]);
 
   const getTooltipContent = (ctx: CountryContext) => {
+    if (!t) return "";
+    
     const data = filteredCountryData.find(item => item.country === ctx.countryCode);
     if (data) {
-      return `${countryNames[ctx.countryCode] || ctx.countryCode}: ${data.value} ${data.value === 1 ? 'alumnus' : 'alumni'}`;
+      const countryName = t.worldMap.countryNames[ctx.countryCode] || ctx.countryCode;
+      const suffix = data.value === 1 ? t.worldMap.tooltipSuffix.singular : t.worldMap.tooltipSuffix.plural;
+      return `${countryName}: ${data.value} ${suffix}`;
     }
     return "";
   };
@@ -187,19 +167,23 @@ const WorldMapComponent = () => {
   const handleResetFilters = () => {
     setSearchTerm('');
   };
+  
   // Get universities for selected country
   const selectedCountryUniversities = useMemo(() => {
     if (!selectedCountry) return [];
     return getUniversitiesByCountry(selectedCountry);
   }, [selectedCountry]);
 
+  if (!t) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <>
       {/* Custom styles for WorldMap SVG stretching */}
       <style dangerouslySetInnerHTML={{ __html: worldMapStyles }} />
-      
-      <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 rounded-xl overflow-hidden p-4 md:p-8 shadow-lg">
-        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">Global Alumni Network</h2>
+        <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 rounded-xl overflow-hidden p-4 md:p-8 shadow-lg">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">{t.worldMap.title}</h2>
         
         {/* Filters */}
         <div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
@@ -212,7 +196,7 @@ const WorldMapComponent = () => {
               <input
                 type="text"
                 id="search"
-                placeholder="Search by country or university name..."
+                placeholder={t.worldMap.searchPlaceholder}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -225,7 +209,7 @@ const WorldMapComponent = () => {
                 className="w-full px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
                 onClick={handleResetFilters}
               >
-                Reset Search
+                {t.worldMap.resetButton}
               </button>
             </div>
           </div>
@@ -262,50 +246,47 @@ const WorldMapComponent = () => {
                       };
                     }}
                   />
-                </div>
-              ) : (
+                </div>              ) : (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <svg className="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
-                  <h4 className="text-lg font-medium text-gray-700 mb-2">No countries match your search</h4>
-                  <p className="text-gray-500 mb-4">Try searching for a different country or university</p>
+                  <h4 className="text-lg font-medium text-gray-700 mb-2">{t.worldMap.noResults.title}</h4>
+                  <p className="text-gray-500 mb-4">{t.worldMap.noResults.description}</p>
                   <button
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors"
                     onClick={handleResetFilters}
                   >
-                    Reset Search
+                    {t.worldMap.noResults.resetButton}
                   </button>
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Right Panel - Statistics and Info (takes 1/3 of the width) */}
+          </div>          {/* Right Panel - Statistics and Info (takes 1/3 of the width) */}
           <div className="lg:col-span-1 flex flex-col space-y-6 h-full">            {/* Alumni Stats */}
             <div className="bg-white rounded-xl p-4 shadow-sm flex-1">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Alumni Statistics</h3>              <div className="grid grid-cols-2 gap-2">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">{t.worldMap.statistics.title}</h3>              <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
                   <p className="text-xl font-bold text-blue-600">{filteredCountryData.reduce((sum, country) => sum + country.value, 0)}</p>
-                  <p className="text-xs text-gray-600 mt-1">Alumni Abroad</p>
+                  <p className="text-xs text-gray-600 mt-1">{t.worldMap.statistics.alumniAbroad}</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
                   <p className="text-xl font-bold text-green-600">{filteredCountryData.length}</p>
-                  <p className="text-xs text-gray-600 mt-1">Countries</p>
+                  <p className="text-xs text-gray-600 mt-1">{t.worldMap.statistics.countries}</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
                   <p className="text-xl font-bold text-purple-600">{filteredCountryData.reduce((sum, country) => sum + getUniversitiesByCountry(country.country).length, 0)}</p>
-                  <p className="text-xs text-gray-600 mt-1">Universities</p>
+                  <p className="text-xs text-gray-600 mt-1">{t.worldMap.statistics.universities}</p>
                 </div>
                 <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg">
                   <p className="text-xl font-bold text-orange-600">{searchTerm ? filteredCountryData.length : countryData.length}</p>
-                  <p className="text-xs text-gray-600 mt-1">Showing Countries</p>
+                  <p className="text-xs text-gray-600 mt-1">{t.worldMap.statistics.showingCountries}</p>
                 </div>
               </div>
             </div>            {/* Top Countries */}
             {filteredCountryData.length > 0 && (
               <div className="bg-white rounded-xl p-4 shadow-sm flex-1">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">Top Destinations</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">{t.worldMap.topDestinations}</h3>
                 <div className="space-y-2">
                   {filteredCountryData
                     .sort((a, b) => b.value - a.value)
@@ -318,7 +299,7 @@ const WorldMapComponent = () => {
                             className="w-3 h-3 rounded-full mr-2" 
                             style={{ backgroundColor: item.color }}
                           ></div>
-                          <span className="font-medium text-gray-800 text-sm">{countryNames[item.country] || item.country}</span>
+                          <span className="font-medium text-gray-800 text-sm">{t.worldMap.countryNames[item.country] || item.country}</span>
                         </div>
                         <span className="text-lg font-bold text-gray-600">{item.value}</span>
                       </div>
@@ -329,14 +310,12 @@ const WorldMapComponent = () => {
           </div>        </div>
 
         {/* Alumni Posters Slider - Full Width Section */}
-        <AlumniPostersSlider />
-
-        {/* Popup dialog */}
+        <AlumniPostersSlider />        {/* Popup dialog */}
         <AnimatePresence>
           {selectedCountry && (
             <AlumniPopup
               universities={selectedCountryUniversities}
-              countryName={countryNames[selectedCountry] || selectedCountry}
+              countryName={t.worldMap.countryNames[selectedCountry] || selectedCountry}
               onClose={handleClosePopup}
             />
           )}

@@ -1,0 +1,47 @@
+import type { CommonTranslations } from '../types';
+
+const commonTranslations: CommonTranslations = {
+  school: {
+    name: "Монгол Тэмүүлэл",
+    fullName: "Монгол Тэмүүлэл Олон Улсын Сургууль"
+  },
+  menu: {
+    sections: {
+      "Meet MAIS": "MAIS-тай танилцах",
+      "Students": "Сурагчид",
+      "Programs": "Хөтөлбөрүүд",
+      "Community": "Нийгэмлэг",
+      "Join Us": "Бидэнтэй нэгдэх"
+    },
+    items: {
+      "Overview": "Ерөнхий танилцуулга",
+      "History": "Түүх",
+      "Campus": "Кампус",
+      "Sports": "Спорт",
+      "Arts & Music": "Урлаг & Хөгжим",
+      "DEA": "DEA",
+      "Student Council": "Сурагчдын зөвлөл",
+      "Clubs": "Клубууд",
+      "PDQ": "PDQ",
+      "Cambridge": "Кэмбриж",
+      "Parents": "Эцэг эх",
+      "Staff": "Ажилтнууд",
+      "Alumni": "Төгсөгчид",
+      "Admission": "Элсэлт",
+      "Job Posting": "Ажлын байр",
+      "Contact Us": "Холбоо барих",
+      "Forums": "Форум"
+    },
+    footer: {
+      "news": "Мэдээ",
+      "events": "Арга хэмжээ",
+      "contact us": "Холбоо барих",
+      "forums": "Форум",
+      "Register": "Бүртгүүлэх",
+      "copyright": "© 2025 MAIS"
+    },
+    subtitle: "Олон улсын сургууль"
+  }
+};
+
+export default commonTranslations;

@@ -1,10 +1,16 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import NewsCard from './ui/NewsCard';
-import { getAllNews } from '../data/manualNewsData';
+import { getAllLocalizedNews } from '../data/localizedNewsData';
+import { useCommonTranslation, useNewsPageTranslation } from '../translations/useTranslation';
+import { useAtom } from 'jotai';
+import { Language } from '../store/ThemeAtom';
 
 const NewsPage = () => {
-  const newsItems = getAllNews();
+  const { t: commonT } = useCommonTranslation();
+  const { t } = useNewsPageTranslation();
+  const [language] = useAtom(Language);
+  const newsItems = getAllLocalizedNews(language);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -21,12 +27,11 @@ const NewsPage = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center"
-          >
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Latest News & Updates
+          >            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              {t?.hero.title || "Latest News & Updates"}
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Stay informed with the latest news, updates, and announcements from Mongol Aspiration International School
+              {t?.hero.subtitle || "Stay informed with the latest news, updates, and announcements from"} {commonT?.school.fullName || "Mongol Aspiration International School"}
             </p>
           </motion.div>
         </div>
@@ -66,11 +71,10 @@ const NewsPage = () => {
           <Link
             to="/"
             className="inline-flex items-center text-accent hover:text-accent-dark transition-colors"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          >            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Home
+            {t?.backToHome || "Back to Home"}
           </Link>
         </motion.div>
       </div>
