@@ -1,0 +1,43 @@
+# Root .gitignore for mais_web project
+
+# Environment variables - NEVER commit these!
+.env
+.env.*
+mais_web/.env*
+
+# Build artifacts and deployment files
+mais_web/build/
+mais_web/dist/
+mais_web/*.zip
+mais_web/build-files-*.zip
+
+# Cloudinary logs and sensitive data
+mais_web/cloudinary-*.json
+mais_web/*-cloudinary-*.json
+mais_web/pic4-cloudinary-url.json
+mais_web/alumni-backup-info.json
+
+# Deployment config
+mais_web/.htaccess
+mais_web/vercel.json
+
+# Dependencies
+node_modules/
+mais_web/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

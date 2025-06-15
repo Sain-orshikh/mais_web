@@ -19,14 +19,13 @@ const Navbar: React.FC = () => {
         {/* Left Side - Language Toggle */}
         <div className="flex flex-row items-center flex-1">
           <LanguageToggle />
-        </div>
-
-        {/* Center - Logo and School Name */}
+        </div>        {/* Center - Logo and School Name */}
         <div className="flex flex-row items-center justify-center flex-1">
           <Link to="/" className="flex flex-row items-center hover:cursor-pointer">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 hidden sm:block">
+            <div className="w-8 h-8 sm:w-10 sm:h-10">
               <img src="/mais_logo_light.png" alt="logo" className="w-full h-full"/>
-            </div>            <span className="text-lg sm:text-xl text-center ml-2 font-medium hidden min-[400px]:block">
+            </div>
+            <span className="text-sm sm:text-lg md:text-xl text-center ml-2 font-medium block">
               {t?.school.name?.toUpperCase() || "MONGOL ASPIRATION"}
             </span>
           </Link>
