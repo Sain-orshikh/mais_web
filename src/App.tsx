@@ -12,6 +12,7 @@ import AboutUs from "./components/AboutUs";
 import WorkInProgress from "./components/WorkInProgress";
 
 const AdminPage = lazy(() => import("./components/Admin/AdminPage"));
+const PublishNews = lazy(() => import("./components/Admin/PublishNews"));
 
 // Loading component for Suspense fallback
 const LoadingComponent = () => (
@@ -49,6 +50,7 @@ function App() {
             <Route path="/wip" element={<WorkInProgress />} />            
             {/* Admin routes */}
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/admin/publish" element={<PublishNews />} />
             
             {/* Profile route for individual alumni - this should come after specific routes */}
             <Route path="/:id" element={<Profile />} />
