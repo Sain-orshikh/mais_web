@@ -29,7 +29,6 @@ const createAdmin = async () => {
 
         const newAdmin = new Admin({
             username: "admin",
-            email: "admin@mais.edu.mn",
             password: hashedPassword,
             permission: "super_admin"
         });

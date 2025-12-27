@@ -29,8 +29,9 @@ const Login = () => {
       }
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    onSuccess: async (data) => {
+      // Set the auth user data directly in the cache
+      queryClient.setQueryData(["authUser"], data);
       toast.success("Successfully logged in!");
       navigate("/admin");
     },

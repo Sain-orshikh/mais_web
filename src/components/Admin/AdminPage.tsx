@@ -38,6 +38,26 @@ const AdminPage = () => {
     logoutMutation.mutate();
   };
 
+  // Permission checks
+  const canAccessNews = authUser?.permission === 'super_admin' || 
+                        authUser?.permission === 'admin' || 
+                        authUser?.permission === 'editor';
+  
+  const canAccessUserManagement = authUser?.permission === 'super_admin';
+  
+  const canAccessCalendar = authUser?.permission === 'super_admin' || 
+                            authUser?.permission === 'admin';
+  
+  const canAccessAnalytics = authUser?.permission === 'super_admin' || 
+                             authUser?.permission === 'admin';
+
+  const handleNavigationClick = (e: React.MouseEvent<HTMLAnchorElement>, hasPermission: boolean, feature: string) => {
+    if (!hasPermission) {
+      e.preventDefault();
+      toast.error(`You don't have permission to access ${feature}`);
+    }
+  };
+
   const [users] = useState(100);
   const [students] = useState(480);
   const [staff] = useState(45);
@@ -85,8 +105,14 @@ const AdminPage = () => {
 
         {/* Main Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <Link to="/admin/publish" className="block">
-            <div className="h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm hover:shadow-md transition-all">
+          <Link 
+            to="/admin/publish" 
+            className="block"
+            onClick={(e) => handleNavigationClick(e, canAccessNews, 'News Management')}
+          >
+            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
+              canAccessNews ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}>
               <div className="w-12 h-12 bg-blue-100 rounded-full flex justify-center items-center mr-4">
                 <FaNewspaper className="text-blue-600 text-xl" />
               </div>
@@ -97,8 +123,14 @@ const AdminPage = () => {
             </div>
           </Link>
           
-          <Link to="/admin/create" className="block">
-            <div className="h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm hover:shadow-md transition-all">
+          <Link 
+            to="/admin/users" 
+            className="block"
+            onClick={(e) => handleNavigationClick(e, canAccessUserManagement, 'User Management')}
+          >
+            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
+              canAccessUserManagement ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}>
               <div className="w-12 h-12 bg-green-100 rounded-full flex justify-center items-center mr-4">
                 <FaUsers className="text-green-600 text-xl" />
               </div>
@@ -109,8 +141,14 @@ const AdminPage = () => {
             </div>
           </Link>
           
-          <Link to="#" className="block">
-            <div className="h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm hover:shadow-md transition-all">
+          <Link 
+            to="/admin/calendar" 
+            className="block"
+            onClick={(e) => handleNavigationClick(e, canAccessCalendar, 'Calendar')}
+          >
+            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
+              canAccessCalendar ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}>
               <div className="w-12 h-12 bg-purple-100 rounded-full flex justify-center items-center mr-4">
                 <FaCalendarDays className="text-purple-600 text-xl" />
               </div>
@@ -121,8 +159,14 @@ const AdminPage = () => {
             </div>
           </Link>
           
-          <Link to="#" className="block">
-            <div className="h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm hover:shadow-md transition-all">
+          <Link 
+            to="#" 
+            className="block"
+            onClick={(e) => handleNavigationClick(e, canAccessAnalytics, 'Analytics')}
+          >
+            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
+              canAccessAnalytics ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}>
               <div className="w-12 h-12 bg-amber-100 rounded-full flex justify-center items-center mr-4">
                 <FaChartLine className="text-amber-600 text-xl" />
               </div>

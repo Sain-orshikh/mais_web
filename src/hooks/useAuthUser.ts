@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 interface AuthUser {
   _id: string;
   username: string;
-  email: string;
   permission: string;
 }
 

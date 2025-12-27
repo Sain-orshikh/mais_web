@@ -11,17 +11,15 @@ const adminSchema = new mongoose.Schema({
         required: true,
         minLength: 6,
     },
-    email:{
-        type: String,
-        required: true,
-        unique: true,
-    },
     permission:{
         type: String,
-        enum: ['super_admin', 'admin', 'editor', 'viewer'],
+        enum: ['super_admin', 'admin', 'editor'],
         default: 'admin',
     },
 },{timestamps: true});
+
+// Drop the email index if it exists
+adminSchema.index({ email: 1 }, { unique: false });
 
 const Admin = mongoose.model("Admin", adminSchema);
 
