@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Plus, Calendar as CalendarIcon, List, Filter, X, Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuthUser } from "../../hooks/useAuthUser";
 
 interface Event {
   _id: string;
@@ -44,6 +45,10 @@ const categoryLabels: Record<string, string> = {
 export default function Calendar() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: authUser } = useAuthUser();
+  
+  // Check if user can modify events (admin or super_admin only)
+  const canModifyEvents = authUser?.permission === 'admin' || authUser?.permission === 'super_admin';
   
   const [view, setView] = useState<ViewType>('month');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -172,12 +177,45 @@ export default function Calendar() {
       return;
     }
 
-    // Convert text date input to ISO format if needed
+    // Convert text date input to proper ISO format
+    const formatDateForBackend = (dateStr: string) => {
+      if (!dateStr) return '';
+      
+      // If already in ISO format (YYYY-MM-DDTHH:MM), return as is
+      if (dateStr.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+        return dateStr;
+      }
+      
+      // Try to parse various formats
+      try {
+        // Replace first space with T if format is "YYYY-MM-DD HH:MM"
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}/)) {
+          return dateStr.replace(/\s/, 'T');
+        }
+        
+        // If other format, try to parse with Date
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          return date.toISOString().slice(0, 16);
+        }
+      } catch (err) {
+        console.error('Date parsing error:', err);
+      }
+      
+      return dateStr;
+    };
+
     const processedData = {
       ...formData,
-      date: formData.date.includes('T') ? formData.date : formData.date.replace(' ', 'T'),
-      endDate: formData.endDate ? (formData.endDate.includes('T') ? formData.endDate : formData.endDate.replace(' ', 'T')) : '',
+      date: formatDateForBackend(formData.date),
+      endDate: formData.endDate ? formatDateForBackend(formData.endDate) : '',
     };
+
+    // Validate date format
+    if (!processedData.date.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/)) {
+      toast.error('Invalid date format. Use YYYY-MM-DD HH:MM');
+      return;
+    }
 
     if (editingEvent) {
       updateEventMutation.mutate({ id: editingEvent._id, eventData: processedData });
@@ -387,13 +425,15 @@ export default function Calendar() {
             </div>
 
             {/* Add Event Button */}
-            <button
-              onClick={() => setShowEventModal(true)}
-              className="flex items-center justify-center gap-1 sm:gap-2 bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition flex-1 lg:flex-initial text-sm sm:text-base"
-            >
-              <Plus size={18} className="sm:w-5 sm:h-5" />
-              <span>Add Event</span>
-            </button>
+            {canModifyEvents && (
+              <button
+                onClick={() => setShowEventModal(true)}
+                className="flex items-center justify-center gap-1 sm:gap-2 bg-blue-500 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-600 transition flex-1 lg:flex-initial text-sm sm:text-base"
+              >
+                <Plus size={18} className="sm:w-5 sm:h-5" />
+                <span>Add Event</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -455,8 +495,8 @@ export default function Calendar() {
                       {dayEvents.slice(0, 2).map(event => (
                         <div
                           key={event._id}
-                          className={`text-xs px-2 py-1 rounded ${categoryColors[event.category]} cursor-pointer truncate`}
-                          onClick={() => handleEdit(event)}
+                          className={`text-xs px-2 py-1 rounded ${categoryColors[event.category]} ${canModifyEvents ? 'cursor-pointer' : 'cursor-default'} truncate`}
+                          onClick={() => canModifyEvents && handleEdit(event)}
                           title={event.title}
                         >
                           {event.title}
@@ -494,8 +534,8 @@ export default function Calendar() {
                         key={event._id}
                         className={`border rounded-lg p-3 ${
                           isToday ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200'
-                        }`}
-                        onClick={() => handleEdit(event)}
+                        } ${canModifyEvents ? 'cursor-pointer' : ''}`}
+                        onClick={() => canModifyEvents && handleEdit(event)}
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
                           <div className="flex-1">
@@ -509,15 +549,17 @@ export default function Calendar() {
                             </div>
                             <h3 className="font-semibold text-gray-900">{event.title}</h3>
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(event._id);
-                            }}
-                            className="text-gray-400 hover:text-red-500 p-1"
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          {canModifyEvents && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(event._id);
+                              }}
+                              className="text-gray-400 hover:text-red-500 p-1"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
                         </div>
                         <div className="text-sm text-gray-600 mb-1">
                           📅 {eventDate.toLocaleDateString('en-US', { 
@@ -602,20 +644,26 @@ export default function Calendar() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {event.createdBy.username}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(event)}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(event._id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
+                      {canModifyEvents ? (
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleEdit(event)}
+                            className="text-blue-600 hover:text-blue-900 mr-4"
+                          >
+                            <Edit2 size={18} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(event._id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </td>
+                      ) : (
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                          View Only
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}

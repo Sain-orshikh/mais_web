@@ -1,12 +1,27 @@
 import {v2 as cloudinary} from "cloudinary";
 import streamifier from "streamifier";
 import News from "../models/news.model.js";
+import Analytics from "../models/analytics.model.js";
 
 export const fetchNews = async (req,res) => {
 	const newsId = req.params.id;
 	try {
 		const news = await News.findById(newsId);
 		if(!news) return res.status(404).json({error: "News not found"});
+		
+		// Track news view
+		try {
+			await Analytics.create({
+				type: 'news_view',
+				page: `/news/${newsId}`,
+				newsId: newsId,
+				referrer: req.get('Referrer') || req.get('Referer') || '',
+				userAgent: req.get('User-Agent') || '',
+			});
+		} catch (analyticsError) {
+			console.log("Analytics tracking error (non-blocking):", analyticsError.message);
+		}
+		
 		res.status(200).json(news);
 	} catch (error) {
 		console.log("error in fetching news:", error.message);

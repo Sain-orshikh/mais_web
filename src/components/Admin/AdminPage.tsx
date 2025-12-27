@@ -7,7 +7,7 @@ import { IoCalendarOutline, IoStatsChart } from "react-icons/io5";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthUser } from "../../hooks/useAuthUser";
-import { useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 const AdminPage = () => {
@@ -46,7 +46,8 @@ const AdminPage = () => {
   const canAccessUserManagement = authUser?.permission === 'super_admin';
   
   const canAccessCalendar = authUser?.permission === 'super_admin' || 
-                            authUser?.permission === 'admin';
+                            authUser?.permission === 'admin' ||
+                            authUser?.permission === 'editor';
   
   const canAccessAnalytics = authUser?.permission === 'super_admin' || 
                              authUser?.permission === 'admin';
@@ -65,6 +66,25 @@ const AdminPage = () => {
   const [status] = useState("operational");
   const [lastLogin] = useState("2h ago");
 
+  // Fetch upcoming events
+  const { data: upcomingEvents = [] } = useQuery({
+    queryKey: ['upcoming-events'],
+    queryFn: async () => {
+      const res = await fetch('http://localhost:5000/api/events', {
+        credentials: 'include',
+      });
+      if (!res.ok) return [];
+      const events = await res.json();
+      
+      // Filter upcoming events (future only) and sort by date
+      const now = new Date();
+      return events
+        .filter((event: any) => new Date(event.date) >= now)
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 5); // Show only next 5 events
+    },
+  });
+
   // Sample recent activity data (would come from API in real implementation)
   const recentActivities = [
     { type: "profile", message: "Student profile updated - Bat-Erdene M.", time: "1h ago" },
@@ -72,13 +92,6 @@ const AdminPage = () => {
     { type: "enrollment", message: "New student enrolled - Narantsetseg B.", time: "5h ago" },
     { type: "grade", message: "Grades updated - 11th Grade Physics", time: "Yesterday" },
     { type: "event", message: "New event scheduled - Science Fair", time: "Yesterday" },
-  ];
-
-  // Sample upcoming events (would come from API in real implementation)
-  const upcomingEvents = [
-    { name: "Staff Meeting", date: "April 15, 2025", time: "09:00 AM" },
-    { name: "Science Fair", date: "April 20, 2025", time: "01:00 PM" },
-    { name: "Parent-Teacher Conference", date: "April 25, 2025", time: "04:00 PM" },
   ];
 
   return (
@@ -160,7 +173,7 @@ const AdminPage = () => {
           </Link>
           
           <Link 
-            to="#" 
+            to="/admin/analytics" 
             className="block"
             onClick={(e) => handleNavigationClick(e, canAccessAnalytics, 'Analytics')}
           >
@@ -305,36 +318,67 @@ const AdminPage = () => {
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b flex justify-between items-center">
                 <h2 className="font-semibold text-gray-800">Upcoming Events</h2>
-                <Link to="#" className="text-sm text-blue-600 hover:underline">View calendar</Link>
+                <Link to="/admin/calendar" className="text-sm text-blue-600 hover:underline">View Calendar</Link>
               </div>
               <div className="p-4">
-                {upcomingEvents.map((event, index) => (
-                  <div key={index} className="mb-4 last:mb-0">
-                    <div className="flex items-start">
-                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex flex-col items-center justify-center mr-3 border border-blue-100">
-                        <span className="text-xs font-medium text-blue-700">
-                          {event.date.split(", ")[0].split(" ")[1]}
-                        </span>
-                        <span className="text-sm font-bold text-blue-800">
-                          {event.date.split(" ")[1].replace(",", "")}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-800">{event.name}</p>
-                        <div className="flex items-center text-xs text-gray-500">
-                          <span>{event.date}</span>
-                          <span className="mx-1">•</span>
-                          <span>{event.time}</span>
-                        </div>
-                      </div>
-                    </div>
+                {upcomingEvents.length === 0 ? (
+                  <div className="text-center py-6 text-gray-500">
+                    <p className="mb-2">No upcoming events</p>
+                    <Link 
+                      to="/admin/calendar" 
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      Add your first event
+                    </Link>
                   </div>
-                ))}
-                <div className="mt-3 pt-3 border-t">
-                  <button className="w-full text-sm text-blue-600 hover:text-blue-800">
-                    + Add new event
-                  </button>
-                </div>
+                ) : (
+                  <>
+                    {upcomingEvents.map((event: any) => {
+                      const eventDate = new Date(event.date);
+                      const monthShort = eventDate.toLocaleDateString('en-US', { month: 'short' });
+                      const day = eventDate.getDate();
+                      const dateStr = eventDate.toLocaleDateString('en-US', { 
+                        month: 'long', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      });
+                      const timeStr = eventDate.toLocaleTimeString('en-US', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      });
+                      
+                      return (
+                        <div key={event._id} className="mb-4 last:mb-0">
+                          <div className="flex items-start">
+                            <div className="w-10 h-10 bg-blue-50 rounded-lg flex flex-col items-center justify-center mr-3 border border-blue-100">
+                              <span className="text-xs font-medium text-blue-700">{monthShort}</span>
+                              <span className="text-sm font-bold text-blue-800">{day}</span>
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-800">{event.title}</p>
+                              <div className="flex items-center text-xs text-gray-500">
+                                <span>{dateStr}</span>
+                                <span className="mx-1">•</span>
+                                <span>{timeStr}</span>
+                              </div>
+                              {event.location && (
+                                <p className="text-xs text-gray-500 mt-1">📍 {event.location}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <div className="mt-3 pt-3 border-t">
+                      <Link 
+                        to="/admin/calendar" 
+                        className="block w-full text-center text-sm text-blue-600 hover:text-blue-800"
+                      >
+                        Add events
+                      </Link>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>

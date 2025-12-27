@@ -15,6 +15,7 @@ const AdminPage = lazy(() => import("./components/Admin/AdminPage"));
 const PublishNews = lazy(() => import("./components/Admin/PublishNews"));
 const UserManagement = lazy(() => import("./components/Admin/UserManagement"));
 const Calendar = lazy(() => import("./components/Admin/Calendar"));
+const Analytics = lazy(() => import("./components/Admin/Analytics"));
 const Login = lazy(() => import("./components/Admin/Login"));
 const ProtectedRoute = lazy(() => import("./components/Admin/ProtectedRoute"));
 
@@ -58,6 +59,7 @@ function App() {
             <Route path="/admin/publish" element={<ProtectedRoute><PublishNews /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
             <Route path="/admin/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+            <Route path="/admin/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             
             {/* Profile route for individual alumni - this should come after specific routes */}
             <Route path="/:id" element={<Profile />} />

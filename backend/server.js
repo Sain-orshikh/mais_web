@@ -10,6 +10,7 @@ import newsRoutes from "./routes/news.route.js";
 import authRoutes from "./routes/auth.route.js";
 import adminRoutes from "./routes/admin.route.js";
 import eventRoutes from "./routes/event.route.js";
+import analyticsRoutes from "./routes/analytics.route.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -49,6 +50,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/admins', adminRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/analytics', analyticsRoutes);
 app.use('/api/news', newsRoutes);
 
 // Health check endpoint
