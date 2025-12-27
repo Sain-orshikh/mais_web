@@ -3,11 +3,17 @@ import express from "express";
 import dotenv from "dotenv";
 import {v2 as cloudinary} from "cloudinary";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import { fileURLToPath } from "url";
 
 import newsRoutes from "./routes/news.route.js";
+import authRoutes from "./routes/auth.route.js";
 import connectMongoDB from "./db/connectMongoDB.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // Configure Cloudinary with WEBP B credentials for news
 cloudinary.config({
@@ -18,7 +24,6 @@ cloudinary.config({
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
 
 // CORS configuration - allow frontend to access backend
 app.use(cors({
@@ -36,8 +41,10 @@ app.use((req, res, next) => {
 
 app.use(express.json({limit: "5mb"})); // to parse req.body
 app.use(express.urlencoded({ extended: true })); // to parse form data
+app.use(cookieParser());
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/news', newsRoutes);
 
 // Health check endpoint

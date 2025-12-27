@@ -1,0 +1,50 @@
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import Admin from "../models/admin.model.js";
+import connectMongoDB from "../db/connectMongoDB.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
+const createAdmin = async () => {
+    try {
+        // Connect to MongoDB
+        await connectMongoDB();
+
+        // Check if admin already exists
+        const existingAdmin = await Admin.findOne({ username: "admin" });
+        if (existingAdmin) {
+            console.log("Admin already exists!");
+            process.exit(0);
+        }
+
+        // Create new admin
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash("admin123", salt);
+
+        const newAdmin = new Admin({
+            username: "admin",
+            email: "admin@mais.edu.mn",
+            password: hashedPassword,
+            permission: "super_admin"
+        });
+
+        await newAdmin.save();
+        console.log("✅ Admin created successfully!");
+        console.log("Username: admin");
+        console.log("Password: admin123");
+        console.log("⚠️  Please change the password after first login!");
+        
+        process.exit(0);
+    } catch (error) {
+        console.error("Error creating admin:", error.message);
+        process.exit(1);
+    }
+};
+
+createAdmin();

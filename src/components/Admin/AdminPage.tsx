@@ -1,13 +1,43 @@
 import { FaNewspaper, FaUsers, FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa";
 import { FaCalendarDays, FaChartLine } from "react-icons/fa6";
 import { FaCheckCircle, FaUserPlus, FaBell } from "react-icons/fa";
-import { MdOutlineAccessTimeFilled, MdAdd, MdSettings, MdDashboard } from "react-icons/md";
+import { MdOutlineAccessTimeFilled, MdAdd, MdSettings, MdDashboard, MdLogout } from "react-icons/md";
 import { BiSolidReport } from "react-icons/bi";
 import { IoCalendarOutline, IoStatsChart } from "react-icons/io5";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthUser } from "../../hooks/useAuthUser";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const AdminPage = () => {
+  const { data: authUser } = useAuthUser();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Logout failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["authUser"], null);
+      toast.success("Logged out successfully");
+      navigate("/admin/login");
+    },
+    onError: () => {
+      toast.error("Failed to logout");
+    },
+  });
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+
   const [users] = useState(100);
   const [students] = useState(480);
   const [staff] = useState(45);
@@ -35,12 +65,22 @@ const AdminPage = () => {
     <>
       <div className="w-full h-full flex flex-col p-6">
         {/* Dashboard Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">School Administration Dashboard</h1>
-          <div className="flex items-center text-sm text-gray-500">
-            <MdDashboard className="mr-1" />
-            <span>Welcome to MAIS Admin Portal</span>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">School Administration Dashboard</h1>
+            <div className="flex items-center text-sm text-gray-500">
+              <MdDashboard className="mr-1" />
+              <span>Welcome to MAIS Admin Portal</span>
+            </div>
           </div>
+          <button
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <MdLogout />
+            <span>{logoutMutation.isPending ? "Logging out..." : "Logout"}</span>
+          </button>
         </div>
 
         {/* Main Navigation Cards */}

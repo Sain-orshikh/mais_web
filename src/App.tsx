@@ -13,6 +13,8 @@ import WorkInProgress from "./components/WorkInProgress";
 
 const AdminPage = lazy(() => import("./components/Admin/AdminPage"));
 const PublishNews = lazy(() => import("./components/Admin/PublishNews"));
+const Login = lazy(() => import("./components/Admin/Login"));
+const ProtectedRoute = lazy(() => import("./components/Admin/ProtectedRoute"));
 
 // Loading component for Suspense fallback
 const LoadingComponent = () => (
@@ -49,8 +51,9 @@ function App() {
             {/* Work in Progress route - needs to be before /:id */}
             <Route path="/wip" element={<WorkInProgress />} />            
             {/* Admin routes */}
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/admin/publish" element={<PublishNews />} />
+            <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/admin/publish" element={<ProtectedRoute><PublishNews /></ProtectedRoute>} />
             
             {/* Profile route for individual alumni - this should come after specific routes */}
             <Route path="/:id" element={<Profile />} />
