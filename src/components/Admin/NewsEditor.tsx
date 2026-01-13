@@ -1,5 +1,6 @@
 "use client"
 
+import { API_BASE_URL } from '../../config/api';
 import { FaBold, FaItalic, FaStrikethrough  } from "react-icons/fa6";
 import { MdFormatListBulleted, MdFormatUnderlined, MdOutlineImage } from "react-icons/md";
 import { AiOutlineOrderedList } from "react-icons/ai";
@@ -217,8 +218,8 @@ const NewsEditor = ({ existingNews }: NewsEditorProps) => {
 
     try {
       const url = existingNews 
-        ? `http://localhost:5000/api/news/update/${existingNews._id}`
-        : 'http://localhost:5000/api/news/create';
+        ? `${API_BASE_URL}/api/news/update/${existingNews._id}`
+        : `${API_BASE_URL}/api/news/create`;
       const method = existingNews ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -600,7 +601,7 @@ const NewsEditor = ({ existingNews }: NewsEditorProps) => {
           </div>
         </div>
       </div>
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         .ProseMirror {
           outline: none !important;
           min-height: 400px;
@@ -755,7 +756,7 @@ const NewsEditor = ({ existingNews }: NewsEditorProps) => {
           display: inline !important;
           color: currentColor !important;
         }
-      `}</style>
+      ` }} />
       <Toaster/>
       <Modal
         open={previewOpen}

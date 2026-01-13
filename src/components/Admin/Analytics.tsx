@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { API_BASE_URL } from '../../config/api';
 import { ArrowLeft, TrendingUp, Eye, FileText, Calendar, Activity } from "lucide-react";
 
 interface DashboardStats {
@@ -35,7 +36,7 @@ export default function Analytics() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['analytics-stats'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/analytics/stats', {
+      const res = await fetch(`${API_BASE_URL}/api/analytics/stats`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch stats');
@@ -47,7 +48,7 @@ export default function Analytics() {
   const { data: topNews = [], isLoading: topNewsLoading } = useQuery<TopNews[]>({
     queryKey: ['analytics-top-news'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/analytics/top-news?limit=10', {
+      const res = await fetch(`${API_BASE_URL}/api/analytics/top-news?limit=10`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch top news');
@@ -59,7 +60,7 @@ export default function Analytics() {
   const { data: viewsOverTime = [], isLoading: viewsLoading } = useQuery<ViewsData[]>({
     queryKey: ['analytics-views-over-time'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/analytics/views-over-time?days=30', {
+      const res = await fetch(`${API_BASE_URL}/api/analytics/views-over-time?days=30`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch views over time');
@@ -71,7 +72,7 @@ export default function Analytics() {
   const { data: pageBreakdown = [], isLoading: pageLoading } = useQuery<PageBreakdown[]>({
     queryKey: ['analytics-page-breakdown'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/analytics/page-breakdown', {
+      const res = await fetch(`${API_BASE_URL}/api/analytics/page-breakdown`, {
         credentials: 'include',
       });
       if (!res.ok) throw new Error('Failed to fetch page breakdown');

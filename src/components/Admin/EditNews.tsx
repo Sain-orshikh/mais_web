@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { API_BASE_URL } from '../../config/api';
 import NewsEditor from "./NewsEditor";
 import { FaArrowLeft } from "react-icons/fa";
 
@@ -11,7 +12,7 @@ export default function EditNews() {
     queryKey: ['news', id],
     queryFn: async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/news/fetch/${id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/news/fetch/${id}`, {
           credentials: 'include',
         });
         if (!res.ok) {

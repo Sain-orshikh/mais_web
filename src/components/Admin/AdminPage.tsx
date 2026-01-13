@@ -1,9 +1,9 @@
-import { FaNewspaper, FaUsers, FaUserGraduate} from "react-icons/fa";
-import { FaCalendarDays, FaChartLine } from "react-icons/fa6";
+import { API_BASE_URL } from '../../config/api';
+import { FaNewspaper, FaUsers } from "react-icons/fa";
+import { FaCalendarDays } from "react-icons/fa6";
 import { FaCheckCircle, FaUserPlus, FaBell } from "react-icons/fa";
-import { MdOutlineAccessTimeFilled, MdAdd, MdSettings, MdDashboard, MdLogout } from "react-icons/md";
-import { BiSolidReport } from "react-icons/bi";
-import { IoCalendarOutline, IoStatsChart } from "react-icons/io5";
+import { MdOutlineAccessTimeFilled, MdAdd, MdDashboard, MdLogout } from "react-icons/md";
+import { IoCalendarOutline } from "react-icons/io5";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
@@ -27,7 +27,7 @@ const AdminPage = () => {
   
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch("http://localhost:5000/api/auth/logout", {
+      const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -74,9 +74,9 @@ const AdminPage = () => {
     queryKey: ['admin-stats'],
     queryFn: async () => {
       const [adminsRes, newsRes, eventsRes] = await Promise.all([
-        fetch('http://localhost:5000/api/admins', { credentials: 'include' }),
-        fetch('http://localhost:5000/api/news', { credentials: 'include' }),
-        fetch('http://localhost:5000/api/events', { credentials: 'include' })
+        fetch(`${API_BASE_URL}/api/admins`, { credentials: 'include' }),
+        fetch(`${API_BASE_URL}/api/news`, { credentials: 'include' }),
+        fetch(`${API_BASE_URL}/api/events`, { credentials: 'include' })
       ]);
       
       const admins = adminsRes.ok ? await adminsRes.json() : [];
@@ -112,7 +112,7 @@ const AdminPage = () => {
   const { data: upcomingEvents = [] } = useQuery<Event[]>({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/events', {
+      const res = await fetch(`${API_BASE_URL}/api/events`, {
         credentials: 'include',
       });
       if (!res.ok) return [];
@@ -131,7 +131,7 @@ const AdminPage = () => {
   const { data: recentActivities = [] } = useQuery({
     queryKey: ['recent-activities'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/activities/recent', { 
+      const res = await fetch(`${API_BASE_URL}/api/activities/recent`, { 
         credentials: 'include' 
       });
       if (!res.ok) return [];

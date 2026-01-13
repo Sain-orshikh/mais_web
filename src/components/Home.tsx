@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
+import { API_BASE_URL } from '../config/api';
 import { useInView } from 'react-intersection-observer';
 import { useQuery } from '@tanstack/react-query';
 import Statistics from './Statistics';
@@ -36,7 +37,7 @@ const Home = () => {
   const { data: dynamicNews, isLoading: newsLoading } = useQuery({
     queryKey: ['published-news'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/news/fetch");
+      const res = await fetch(`${API_BASE_URL}/api/news/fetch`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch news");
       // Only show published news on homepage
@@ -49,7 +50,7 @@ const Home = () => {
   const { data: dynamicEvents } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/events");
+      const res = await fetch(`${API_BASE_URL}/api/events`);
       if (!res.ok) throw new Error("Failed to fetch events");
       const data = await res.json();
       // Get upcoming events only (future dates), limit to 3 for homepage

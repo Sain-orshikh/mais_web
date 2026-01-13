@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useState } from "react"
+import { API_BASE_URL } from '../config/api';
 import { Grid, Pagination, Stack } from "@mui/material"
 import BlogCard from "./ui/BlogCard";
 import { AnimatedBackground } from "./ui/animatedbg";
@@ -11,7 +12,7 @@ export default function BlogsPage() {
   const {data:blogs, isLoading} = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/news/fetch");
+      const res = await fetch(`${API_BASE_URL}/api/news/fetch`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
       // Filter to only show published news

@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '../config/api';
 import NewsCard from './ui/NewsCard';
 import { getAllLocalizedNews } from '../data/localizedNewsData';
 import { useCommonTranslation, useNewsPageTranslation } from '../translations/useTranslation';
@@ -16,7 +17,7 @@ const NewsPage = () => {
   const { data: dynamicNews, isLoading: newsLoading } = useQuery({
     queryKey: ['all-published-news'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/news/fetch");
+      const res = await fetch(`${API_BASE_URL}/api/news/fetch`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch news");
       // Only show published news

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../../hooks/useAuthUser";
+import { API_BASE_URL } from '../../config/api';
 import toast from "react-hot-toast";
 import { 
   FaArrowLeft, 
@@ -54,7 +55,7 @@ export default function NewsManagement() {
     queryKey: ['admin-news'],
     queryFn: async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/news/fetch', {
+        const res = await fetch(`${API_BASE_URL}/api/news/fetch`, {
           credentials: 'include',
         });
         const data = await res.json();
@@ -84,7 +85,7 @@ export default function NewsManagement() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/news/delete/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/news/delete/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -107,7 +108,7 @@ export default function NewsManagement() {
   // Submit for approval mutation
   const submitMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/news/${id}/submit`, {
+      const res = await fetch(`${API_BASE_URL}/api/news/${id}/submit`, {
         method: 'PUT',
         credentials: 'include',
       });
@@ -129,7 +130,7 @@ export default function NewsManagement() {
   // Approve mutation
   const approveMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/news/${id}/approve`, {
+      const res = await fetch(`${API_BASE_URL}/api/news/${id}/approve`, {
         method: 'PUT',
         credentials: 'include',
       });
@@ -151,7 +152,7 @@ export default function NewsManagement() {
   // Reject mutation
   const rejectMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/news/${id}/reject`, {
+      const res = await fetch(`${API_BASE_URL}/api/news/${id}/reject`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

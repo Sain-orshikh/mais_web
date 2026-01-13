@@ -32,9 +32,13 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration - allow frontend to access backend
 const allowedOrigins = [
     "http://localhost:3000",
-    "https://mongolaspiration.edu.mn", // Your production domain
+    "https://mongolaspiration.edu.mn",
     "http://mongolaspiration.edu.mn",
-    process.env.FRONTEND_URL // Add frontend URL from env
+    "https://www.mongolaspiration.com",
+    "http://www.mongolaspiration.com",
+    "https://mongolaspiration.com",
+    "http://mongolaspiration.com",
+    process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({

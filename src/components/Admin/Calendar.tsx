@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { API_BASE_URL } from '../../config/api';
 import { ArrowLeft, Plus, Calendar as CalendarIcon, List, Filter, X, Edit2, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useAuthUser } from "../../hooks/useAuthUser";
@@ -71,7 +72,7 @@ export default function Calendar() {
   const { data: events = [], isLoading } = useQuery<Event[]>({
     queryKey: ['events'],
     queryFn: async () => {
-      const res = await fetch('http://localhost:5000/api/events', {
+      const res = await fetch(`${API_BASE_URL}/api/events`, {
         credentials: 'include',
       });
       if (!res.ok) {
@@ -85,7 +86,7 @@ export default function Calendar() {
   // Create event mutation
   const createEventMutation = useMutation({
     mutationFn: async (eventData: typeof formData) => {
-      const res = await fetch('http://localhost:5000/api/events', {
+      const res = await fetch(`${API_BASE_URL}/api/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -111,7 +112,7 @@ export default function Calendar() {
   // Update event mutation
   const updateEventMutation = useMutation({
     mutationFn: async ({ id, eventData }: { id: string; eventData: typeof formData }) => {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -138,7 +139,7 @@ export default function Calendar() {
   // Delete event mutation
   const deleteEventMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/events/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

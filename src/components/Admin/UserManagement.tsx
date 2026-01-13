@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { Navigate } from "react-router-dom";
+import { API_BASE_URL } from '../../config/api';
 import toast from "react-hot-toast";
 import { FaUserPlus, FaTrash, FaUserShield, FaUserEdit, FaUser, FaArrowLeft } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
@@ -38,7 +39,7 @@ const UserManagement = () => {
   const { data: admins, isLoading } = useQuery<Admin[]>({
     queryKey: ["admins"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/admins", {
+      const res = await fetch(`${API_BASE_URL}/api/admins`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -50,7 +51,7 @@ const UserManagement = () => {
   // Create admin mutation
   const createMutation = useMutation({
     mutationFn: async (adminData: typeof formData) => {
-      const res = await fetch("http://localhost:5000/api/admins", {
+      const res = await fetch(`${API_BASE_URL}/api/admins`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(adminData),
@@ -74,7 +75,7 @@ const UserManagement = () => {
   // Delete admin mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`http://localhost:5000/api/admins/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admins/${id}`, {
         method: "DELETE",
         credentials: "include",
       });

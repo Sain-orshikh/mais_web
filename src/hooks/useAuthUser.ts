@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { API_BASE_URL } from '../config/api';
 
 interface AuthUser {
   _id: string;
@@ -12,7 +13,7 @@ export function useAuthUser() {
     queryKey: ['authUser'],
     queryFn: async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
           credentials: 'include',
         });
         const data = await res.json();

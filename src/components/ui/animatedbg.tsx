@@ -98,7 +98,7 @@ export function AnimatedBackground({
                 <motion.div
                   layoutId={`background-${uniqueId}`}
                   className={cn('absolute inset-0', className)}
-                  transition={transition}
+                  transition={transition as any}
                   initial={{ opacity: defaultValue ? 1 : 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
