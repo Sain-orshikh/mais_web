@@ -11,6 +11,7 @@ import { MdPreview } from "react-icons/md";
 
 import React, { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
+import { useAuthUser } from "../../hooks/useAuthUser";
 import StarterKit from "@tiptap/starter-kit";
 import Heading from "@tiptap/extension-heading";
 import Link from "@tiptap/extension-link";
@@ -59,15 +60,21 @@ const fonts = [
   { label: "Impact", value: "Impact, fantasy" },
 ];
 
-const categories = [
-    "Others",
-    "School News",
-    "Events",
-    "Achievements",
-    "Announcements",
-  ]
+interface NewsEditorProps {
+  existingNews?: {
+    _id: string;
+    title: string;
+    content: string;
+    image: string;
+    author: string;
+    status: string;
+  };
+}
 
-const NewsEditor = () => {
+const NewsEditor = ({ existingNews }: NewsEditorProps) => {
+  const { data: authUser } = useAuthUser();
+  
+  console.log('NewsEditor mounted with existingNews:', existingNews);
 
   const editor = useEditor({
     extensions: [
@@ -103,7 +110,7 @@ const NewsEditor = () => {
         emptyEditorClass: 'is-editor-empty',
       }),
     ],
-    content: "<p></p>",
+    content: existingNews?.content || "<p></p>",
     editable: true,
     autofocus: true,
     onUpdate: ({ editor }) => {
@@ -120,76 +127,126 @@ const NewsEditor = () => {
   
   const [previewOpen, setPreviewOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [category, setCategory] = useState('Others');
-  const [author, setAuthor] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(null);
+  const [title, setTitle] = useState(existingNews?.title || '');
+  const [content, setContent] = useState(existingNews?.content || '');
+  // Auto-populate author with admin username (hidden from user)
+  const author = existingNews?.author || authUser?.username || 'MAIS School';
+  const [imagePreview, setImagePreview] = useState<string | ArrayBuffer | null>(existingNews?.image || null);
+  const [saveAs, setSaveAs] = useState<'draft' | 'pending'>('draft');
+  
+  console.log('Editor state:', { title, author, hasImage: !!imagePreview, hasEditor: !!editor });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
   };
 
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCategory(e.target.value);
-  };
-
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+      processImageFile(file);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const processImageFile = (file: File) => {
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please upload an image file');
+      return;
+    }
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    setImage(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
-    const content = editor?.getHTML() || "";
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent, status: 'draft' | 'pending' = 'draft') => {
+    e.preventDefault();
+    const editorContent = editor?.getHTML() || "";
     console.log("Image:", image);
     console.log("Title:", title);
-    console.log("Content:", content);
-    console.log("Category:", category);
+    console.log("Content:", editorContent);
     console.log("Author:", author);
+    console.log("Status:", status);
     
-    if (!image || !title || !content || !category || !author) {
-      toast.error("Please fill in all fields and select an image.");
+    // For updates, image is optional if already exists
+    if (!existingNews && !image) {
+      toast.error("Please select an image.");
+      return;
+    }
+    
+    if (!title || !editorContent) {
+      toast.error("Please fill in all required fields.");
       return;
     }
 
     const formData = new FormData();
-    formData.append('image', image);
+    if (image) formData.append('image', image);
     formData.append('title', title);
-    formData.append('content', content);
-    formData.append('category', category);
+    formData.append('content', editorContent);
     formData.append('author', author);
+    formData.append('status', status);
+    
+    console.log('FormData contents:');
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+    }
 
     try {
-      const response = await fetch('/api/news/create', {
-        method: 'POST',
+      const url = existingNews 
+        ? `http://localhost:5000/api/news/update/${existingNews._id}`
+        : 'http://localhost:5000/api/news/create';
+      const method = existingNews ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         body: formData,
+        credentials: 'include',
       });
 
       const data = await response.json();
       if (data.success) {
-        toast.success('News uploaded successfully!');
-        // Reset form
-        setTitle('');
-        setAuthor('');
-        setImage(null);
-        setImagePreview(null);
-        setCategory('Others');
-        editor?.commands.setContent('<p></p>');
+        const action = existingNews ? 'updated' : 'created';
+        const statusText = status === 'draft' ? 'as draft' : 'and submitted for approval';
+        toast.success(`News ${action} successfully ${statusText}!`);
+        
+        if (!existingNews) {
+          // Reset form for new news
+          setTitle('');
+          setImage(null);
+          setImagePreview(null);
+          editor?.commands.setContent('<p></p>');
+        }
       } else {
-        console.error('Error uploading news:', data.error);
-        toast.error(data.error || 'Error uploading news');
+        console.error('Error saving news:', data.error);
+        toast.error(data.error || 'Error saving news');
       }
     } catch (error) {
-      console.error('Error uploading news:', error);
-      toast.error("Error uploading news. Don't insert pictures larger than 1mb in content.");
+      console.error('Error saving news:', error);
+      toast.error("Error saving news. Don't insert pictures larger than 1mb in content.");
     }
   };
 
@@ -231,18 +288,41 @@ const NewsEditor = () => {
     setPreviewOpen(true);
     toast.success("Preview opened!");
   };
+  
+  if (!editor) {
+    return (
+      <div className="flex items-center justify-center w-full h-screen">
+        <div className="text-center">
+          <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-700">Initializing editor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-2">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800 mb-1">Publish School News</h1>
-              <p className="text-gray-600">Create and share important updates with the school community</p>
+              <h1 className="text-3xl font-bold text-gray-800 mb-1">
+                {existingNews ? 'Edit News Article' : 'Publish School News'}
+              </h1>
+              <p className="text-gray-600">
+                {existingNews 
+                  ? 'Update your article and manage its status'
+                  : 'Create and share important updates with the school community'
+                }
+              </p>
+              {existingNews && (
+                <span className="inline-block mt-2 px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                  Status: {(existingNews.status || 'draft').toUpperCase()}
+                </span>
+              )}
             </div>
-            <div className="flex items-center space-x-3 flex-shrink-0">
+            <div className="flex items-center space-x-3 flex-shrink-0 flex-wrap">
               <button
                 onClick={handlePreview}
                 className="flex items-center space-x-2 px-6 py-2.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition-colors border border-indigo-200"
@@ -251,10 +331,16 @@ const NewsEditor = () => {
                 <span className="font-medium">Preview</span>
               </button>
               <button
-                onClick={handleSubmit}
+                onClick={(e) => handleSubmit(e, 'draft')}
+                className="flex items-center space-x-2 px-6 py-2.5 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-md"
+              >
+                <span className="font-medium">Save as Draft</span>
+              </button>
+              <button
+                onClick={(e) => handleSubmit(e, 'pending')}
                 className="flex items-center space-x-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md"
               >
-                <span className="font-medium">Publish Article</span>
+                <span className="font-medium">Submit for Approval</span>
               </button>
             </div>
           </div>
@@ -266,46 +352,23 @@ const NewsEditor = () => {
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Article Details</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Article Title *</label>
-                <input
-                  value={title}
-                  onChange={handleInputChange}
-                  placeholder="Enter a descriptive title..."
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                <select 
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white"
-                  value={category}
-                  onChange={handleCategoryChange}
-                >
-                  {categories.map((category, index) => (
-                    <option key={index} value={category}>
-                      {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Author Name *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Article Title *</label>
               <input
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Your name or department..."
+                value={title}
+                onChange={handleInputChange}
+                placeholder="Enter a descriptive title..."
                 className="w-full border border-gray-300 rounded-lg px-4 py-3"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Cover Image *</label>
-              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group">
+              <label 
+                className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-all group"
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
                 <input
                   type="file"
                   accept="image/*"
@@ -699,21 +762,26 @@ const NewsEditor = () => {
         onClose={() => setPreviewOpen(false)}
         className="flex items-center justify-center"
       >
-        <div className="bg-white p-8 rounded-lg max-w-4xl max-h-[90vh] overflow-auto m-4">
-          <h2 className="text-3xl font-bold mb-4">{title}</h2>
-          <p className="text-gray-600 mb-2">Category: {category}</p>
-          <p className="text-gray-600 mb-4">Author: {author}</p>
+        <div className="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-auto m-4 border border-gray-200">
+          {/* Image Section */}
           {imagePreview && (
-            <img
-              src={imagePreview as string}
-              alt="Preview"
-              className="w-full mb-4 rounded"
-            />
+            <div className="relative h-64 overflow-hidden">
+              <img
+                src={imagePreview as string}
+                alt="Preview"
+                className="w-full h-full object-fill"
+              />
+            </div>
           )}
-          <div 
-            className="prose max-w-none"
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+          
+          {/* Content Section */}
+          <div className="p-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">{title}</h2>
+            <div 
+              className="prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          </div>
         </div>
       </Modal>
     </div>

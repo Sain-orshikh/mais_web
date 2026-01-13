@@ -12,12 +12,17 @@ export const login = async (req, res) => {
             return res.status(400).json({error: "Invalid credentials"})
         }
 
+        // Update last login timestamp
+        admin.lastLogin = new Date();
+        await admin.save();
+
         generateTokenAndSetCookie(admin._id, res);
 
         res.status(200).json({
             _id: admin._id,
             username: admin.username,
             permission: admin.permission,
+            lastLogin: admin.lastLogin,
         });
     }   
     catch(error) {

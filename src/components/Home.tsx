@@ -2,14 +2,13 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useQuery } from '@tanstack/react-query';
 import Statistics from './Statistics';
 import WorldMap from './WorldMap';
 import SlidingHero from './ui/SlidingHero';
 import EventCard from './ui/EventCard';
 import NewsCard from './ui/NewsCard';
 import SchoolDirections from './SchoolDirections';
-import RegistrationNotification from './ui/RegistrationNotification';
-import RegistrationTestNotification from './ui/RegistrationTestNotification';
 import { getAllLocalizedNews } from '../data/localizedNewsData';
 import { useHomeTranslation } from '../translations/useTranslation';
 import TranslationLoading from './TranslationLoading';
@@ -33,6 +32,36 @@ const Home = () => {
     const { t, loading, error, language } = useHomeTranslation();
   const [menuOpen] = useAtom(isMenuOpen);
 
+  // Fetch dynamic news from API
+  const { data: dynamicNews, isLoading: newsLoading } = useQuery({
+    queryKey: ['published-news'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/api/news/fetch");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch news");
+      // Only show published news on homepage
+      return (data.data || []).filter((n: any) => n.status === 'published').slice(0, 6);
+    },
+    retry: 1,
+  });
+
+  // Fetch upcoming events from API
+  const { data: dynamicEvents } = useQuery({
+    queryKey: ['upcoming-events'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/api/events");
+      if (!res.ok) throw new Error("Failed to fetch events");
+      const data = await res.json();
+      // Get upcoming events only (future dates), limit to 3 for homepage
+      const now = new Date();
+      return (data || [])
+        .filter((event: any) => new Date(event.date) >= now)
+        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 3);
+    },
+    retry: 1,
+  });
+
   // Show loading state while translations are being loaded
   if (loading || !t) {
     return <TranslationLoading error={error} />;
@@ -45,10 +74,33 @@ const Home = () => {
     '/pic3.jpg',
     'https://res.cloudinary.com/dyez98wtv/image/upload/v1749912073/misc/pic4.jpg'
   ];
-    // Get news items from data
-  const newsItems = getAllLocalizedNews(language);
-  // Sample upcoming events
-  const upcomingEvents = t.events.eventData;
+  
+  // Get news items - use dynamic news if available, fallback to static
+  const newsItems = dynamicNews && dynamicNews.length > 0 
+    ? dynamicNews.map((news: any) => ({
+        id: news._id,
+        title: news.title,
+        date: new Date(news.createdAt).toLocaleDateString(),
+        excerpt: news.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
+        thumbnailUrl: news.image, // Use the same image for both
+        imageUrl: news.image,
+        author: news.author,
+      }))
+    : getAllLocalizedNews(language).slice(0, 6);
+    
+  // Get upcoming events - use dynamic events if available, fallback to static
+  const upcomingEvents = dynamicEvents && dynamicEvents.length > 0
+    ? dynamicEvents.map((event: any) => ({
+        title: event.title,
+        date: new Date(event.date).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        }),
+        description: event.description,
+        location: event.location || 'TBA',
+      }))
+    : t.events.eventData;
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -85,9 +137,6 @@ const Home = () => {
           </div>
         )}
       </div>
-
-      {/* Registration Notification */}
-      <RegistrationNotification />
 
       {/* News Section */}
       <motion.section 
@@ -135,11 +184,6 @@ const Home = () => {
                 <EventCard {...event} />
               </motion.div>
             ))}
-          </div>
-            <div className="text-center mt-10">
-            <Link to="/wip" className="bg-accent hover:bg-accent-dark text-white font-bold py-3 px-6 rounded-lg transition-all duration-300 inline-block">
-              {t.events.viewAll}
-            </Link>
           </div>
         </div>
       </section>
@@ -290,9 +334,6 @@ const Home = () => {
           </div>
         </div>
       </footer>
-      
-      {/* Fixed Registration Test Notification */}
-      <RegistrationTestNotification />
     </div>
   );
 };

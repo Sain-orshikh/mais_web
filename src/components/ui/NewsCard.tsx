@@ -19,7 +19,7 @@ const NewsCard = ({ title, excerpt, thumbnailUrl, imageUrl, href = "/news" }: Ne
   return (
     <Link 
       to={href}
-      className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg hover:border-accent-200 transition-all duration-200"
+      className="group bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200"
     >
       {/* Image */}
       <div ref={ref} className="relative h-48 overflow-hidden">

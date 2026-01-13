@@ -1,14 +1,24 @@
-import { FaNewspaper, FaUsers, FaUserGraduate, FaChalkboardTeacher } from "react-icons/fa";
+import { FaNewspaper, FaUsers, FaUserGraduate} from "react-icons/fa";
 import { FaCalendarDays, FaChartLine } from "react-icons/fa6";
 import { FaCheckCircle, FaUserPlus, FaBell } from "react-icons/fa";
 import { MdOutlineAccessTimeFilled, MdAdd, MdSettings, MdDashboard, MdLogout } from "react-icons/md";
 import { BiSolidReport } from "react-icons/bi";
 import { IoCalendarOutline, IoStatsChart } from "react-icons/io5";
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthUser } from "../../hooks/useAuthUser";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+
+interface Event {
+  _id: string;
+  title: string;
+  description: string;
+  date: string;
+  endDate?: string;
+  category: string;
+  location?: string;
+  isAllDay: boolean;
+}
 
 const AdminPage = () => {
   const { data: authUser } = useAuthUser();
@@ -59,40 +69,75 @@ const AdminPage = () => {
     }
   };
 
-  const [users] = useState(100);
-  const [students] = useState(480);
-  const [staff] = useState(45);
-  const [news] = useState(50);
-  const [status] = useState("operational");
-  const [lastLogin] = useState("2h ago");
+  // Fetch real stats
+  const { data: stats } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const [adminsRes, newsRes, eventsRes] = await Promise.all([
+        fetch('http://localhost:5000/api/admins', { credentials: 'include' }),
+        fetch('http://localhost:5000/api/news', { credentials: 'include' }),
+        fetch('http://localhost:5000/api/events', { credentials: 'include' })
+      ]);
+      
+      const admins = adminsRes.ok ? await adminsRes.json() : [];
+      const newsData = newsRes.ok ? await newsRes.json() : [];
+      const events = eventsRes.ok ? await eventsRes.json() : [];
+      
+      return {
+        admins: admins.length || 0,
+        news: newsData.length || 0,
+        events: events.length || 0,
+      };
+    },
+  });
+
+  // Format last login
+  const formatLastLogin = (date: string | null | undefined) => {
+    if (!date) return 'Never';
+    const loginDate = new Date(date);
+    const now = new Date();
+    const diff = now.getTime() - loginDate.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    return loginDate.toLocaleDateString();
+  };
 
   // Fetch upcoming events
-  const { data: upcomingEvents = [] } = useQuery({
+  const { data: upcomingEvents = [] } = useQuery<Event[]>({
     queryKey: ['upcoming-events'],
     queryFn: async () => {
       const res = await fetch('http://localhost:5000/api/events', {
         credentials: 'include',
       });
       if (!res.ok) return [];
-      const events = await res.json();
+      const events: Event[] = await res.json();
       
       // Filter upcoming events (future only) and sort by date
       const now = new Date();
       return events
-        .filter((event: any) => new Date(event.date) >= now)
-        .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .filter((event) => new Date(event.date) >= now)
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         .slice(0, 5); // Show only next 5 events
     },
   });
 
-  // Sample recent activity data (would come from API in real implementation)
-  const recentActivities = [
-    { type: "profile", message: "Student profile updated - Bat-Erdene M.", time: "1h ago" },
-    { type: "announcement", message: "New announcement published - Spring Festival", time: "3h ago" },
-    { type: "enrollment", message: "New student enrolled - Narantsetseg B.", time: "5h ago" },
-    { type: "grade", message: "Grades updated - 11th Grade Physics", time: "Yesterday" },
-    { type: "event", message: "New event scheduled - Science Fair", time: "Yesterday" },
-  ];
+  // Fetch recent activities from news and events
+  const { data: recentActivities = [] } = useQuery({
+    queryKey: ['recent-activities'],
+    queryFn: async () => {
+      const res = await fetch('http://localhost:5000/api/activities/recent', { 
+        credentials: 'include' 
+      });
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
 
   return (
     <>
@@ -119,7 +164,7 @@ const AdminPage = () => {
         {/* Main Navigation Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <Link 
-            to="/admin/publish" 
+            to="/admin/news" 
             className="block"
             onClick={(e) => handleNavigationClick(e, canAccessNews, 'News Management')}
           >
@@ -131,7 +176,25 @@ const AdminPage = () => {
               </div>
               <div>
                 <h3 className="font-medium text-gray-800">News Management</h3>
-                <p className="text-sm text-gray-500">Publish and manage articles</p>
+                <p className="text-sm text-gray-500">Manage and approve articles</p>
+              </div>
+            </div>
+          </Link>
+          
+          <Link 
+            to="/admin/publish" 
+            className="block"
+            onClick={(e) => handleNavigationClick(e, canAccessNews, 'Create News')}
+          >
+            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
+              canAccessNews ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
+            }`}>
+              <div className="w-12 h-12 bg-indigo-100 rounded-full flex justify-center items-center mr-4">
+                <FaNewspaper className="text-indigo-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="font-medium text-gray-800">Create News</h3>
+                <p className="text-sm text-gray-500">Publish new articles</p>
               </div>
             </div>
           </Link>
@@ -171,56 +234,18 @@ const AdminPage = () => {
               </div>
             </div>
           </Link>
-          
-          <Link 
-            to="/admin/analytics" 
-            className="block"
-            onClick={(e) => handleNavigationClick(e, canAccessAnalytics, 'Analytics')}
-          >
-            <div className={`h-24 border bg-white rounded-lg flex items-center p-4 shadow-sm transition-all ${
-              canAccessAnalytics ? 'hover:shadow-md cursor-pointer' : 'opacity-50 cursor-not-allowed'
-            }`}>
-              <div className="w-12 h-12 bg-amber-100 rounded-full flex justify-center items-center mr-4">
-                <FaChartLine className="text-amber-600 text-xl" />
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-800">Analytics</h3>
-                <p className="text-sm text-gray-500">View reports and statistics</p>
-              </div>
-            </div>
-          </Link>
         </div>
 
         {/* Statistics Row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
           <div className="border bg-white rounded-lg shadow-sm p-4">
             <div className="flex justify-between items-center mb-2">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex justify-center items-center">
                 <FaUsers className="text-blue-600 text-sm" />
               </div>
-              <span className="text-xs text-gray-500">Users</span>
+              <span className="text-xs text-gray-500">Admins</span>
             </div>
-            <p className="text-xl font-bold text-gray-800">{users}</p>
-          </div>
-          
-          <div className="border bg-white rounded-lg shadow-sm p-4">
-            <div className="flex justify-between items-center mb-2">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex justify-center items-center">
-                <FaUserGraduate className="text-green-600 text-sm" />
-              </div>
-              <span className="text-xs text-gray-500">Students</span>
-            </div>
-            <p className="text-xl font-bold text-gray-800">{students}</p>
-          </div>
-          
-          <div className="border bg-white rounded-lg shadow-sm p-4">
-            <div className="flex justify-between items-center mb-2">
-              <div className="w-8 h-8 bg-amber-100 rounded-full flex justify-center items-center">
-                <FaChalkboardTeacher className="text-amber-600 text-sm" />
-              </div>
-              <span className="text-xs text-gray-500">Staff</span>
-            </div>
-            <p className="text-xl font-bold text-gray-800">{staff}</p>
+            <p className="text-xl font-bold text-gray-800">{stats?.admins || 0}</p>
           </div>
           
           <div className="border bg-white rounded-lg shadow-sm p-4">
@@ -230,7 +255,17 @@ const AdminPage = () => {
               </div>
               <span className="text-xs text-gray-500">News</span>
             </div>
-            <p className="text-xl font-bold text-gray-800">{news}</p>
+            <p className="text-xl font-bold text-gray-800">{stats?.news || 0}</p>
+          </div>
+          
+          <div className="border bg-white rounded-lg shadow-sm p-4">
+            <div className="flex justify-between items-center mb-2">
+              <div className="w-8 h-8 bg-amber-100 rounded-full flex justify-center items-center">
+                <FaCalendarDays className="text-amber-600 text-sm" />
+              </div>
+              <span className="text-xs text-gray-500">Events</span>
+            </div>
+            <p className="text-xl font-bold text-gray-800">{stats?.events || 0}</p>
           </div>
           
           <div className="border bg-white rounded-lg shadow-sm p-4">
@@ -240,7 +275,7 @@ const AdminPage = () => {
               </div>
               <span className="text-xs text-gray-500">Status</span>
             </div>
-            <p className="text-xl font-bold text-emerald-600 capitalize">{status}</p>
+            <p className="text-xl font-bold text-emerald-600 capitalize">Operational</p>
           </div>
           
           <div className="border bg-white rounded-lg shadow-sm p-4">
@@ -250,7 +285,7 @@ const AdminPage = () => {
               </div>
               <span className="text-xs text-gray-500">Last Login</span>
             </div>
-            <p className="text-xl font-bold text-gray-800">{lastLogin}</p>
+            <p className="text-sm font-bold text-gray-800">{formatLastLogin(authUser?.lastLogin)}</p>
           </div>
         </div>
 
@@ -263,30 +298,30 @@ const AdminPage = () => {
                 <h2 className="font-semibold text-gray-800">Quick Actions</h2>
               </div>
               <div className="p-4 space-y-3">
-                <Link to="/admin/publish" className="flex items-center justify-start w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md text-sm">
-                  <MdAdd className="mr-2" />
-                  Create News Article
-                </Link>
-                <Link to="/admin/create" className="flex items-center justify-start w-full bg-green-600 hover:bg-green-700 text-white p-2 rounded-md text-sm">
-                  <FaUserPlus className="mr-2" />
-                  Add New User
-                </Link>
-                <button className="flex items-center justify-start w-full bg-amber-600 hover:bg-amber-700 text-white p-2 rounded-md text-sm">
-                  <IoCalendarOutline className="mr-2" />
-                  Schedule Event
-                </button>
-                <button className="flex items-center justify-start w-full bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-md text-sm">
-                  <FaBell className="mr-2" />
-                  Send Notification
-                </button>
-                <button className="flex items-center justify-start w-full bg-gray-600 hover:bg-gray-700 text-white p-2 rounded-md text-sm">
-                  <BiSolidReport className="mr-2" />
-                  Generate Report
-                </button>
-                <button className="flex items-center justify-start w-full border border-gray-300 hover:bg-gray-50 text-gray-700 p-2 rounded-md text-sm">
-                  <MdSettings className="mr-2" />
-                  System Settings
-                </button>
+                {canAccessNews && (
+                  <Link to="/admin/publish" className="flex items-center justify-start w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-md text-sm transition-colors">
+                    <MdAdd className="mr-2" />
+                    Create News Article
+                  </Link>
+                )}
+                {canAccessNews && (
+                  <Link to="/admin/news" className="flex items-center justify-start w-full bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-md text-sm transition-colors">
+                    <FaNewspaper className="mr-2" />
+                    Manage News
+                  </Link>
+                )}
+                {canAccessUserManagement && (
+                  <Link to="/admin/users" className="flex items-center justify-start w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded-md text-sm transition-colors">
+                    <FaUserPlus className="mr-2" />
+                    Manage Users
+                  </Link>
+                )}
+                {canAccessCalendar && (
+                  <Link to="/admin/calendar" className="flex items-center justify-start w-full bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-md text-sm transition-colors">
+                    <IoCalendarOutline className="mr-2" />
+                    Manage Events
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -297,20 +332,30 @@ const AdminPage = () => {
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b flex justify-between items-center">
                 <h2 className="font-semibold text-gray-800">Recent Activities</h2>
-                <Link to="#" className="text-sm text-blue-600 hover:underline">View all</Link>
+                <Link to="/admin/news" className="text-sm text-blue-600 hover:underline">View all news</Link>
               </div>
               <div className="p-4 divide-y">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="py-3 first:pt-0 last:pb-0">
-                    <div className="flex items-start">
-                      <ActivityIcon type={activity.type} />
-                      <div className="ml-3">
-                        <p className="text-sm text-gray-800">{activity.message}</p>
-                        <span className="text-xs text-gray-500">{activity.time}</span>
+                {recentActivities.length === 0 ? (
+                  <div className="text-center py-6 text-gray-500">
+                    <p>No recent activities</p>
+                  </div>
+                ) : (
+                  recentActivities.map((activity: any, index: number) => (
+                    <div key={index} className="py-3 first:pt-0 last:pb-0">
+                      <div className="flex items-start">
+                        <ActivityIcon type={activity.action} />
+                        <div className="ml-3">
+                          <p className="text-sm text-gray-800">{activity.description}</p>
+                          <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                            <span>{activity.actor?.username || 'System'}</span>
+                            <span>•</span>
+                            <span>{formatLastLogin(activity.createdAt)}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
             
@@ -333,7 +378,7 @@ const AdminPage = () => {
                   </div>
                 ) : (
                   <>
-                    {upcomingEvents.map((event: any) => {
+                    {upcomingEvents.map((event) => {
                       const eventDate = new Date(event.date);
                       const monthShort = eventDate.toLocaleDateString('en-US', { month: 'short' });
                       const day = eventDate.getDate();
@@ -407,47 +452,43 @@ const AdminPage = () => {
   );
 };
 
-type ActivityType = 'profile' | 'announcement' | 'enrollment' | 'grade' | 'event' | string;
+type ActivityType = 'news_created' | 'news_updated' | 'news_deleted' | 'news_submitted' | 'news_approved' | 'news_rejected' | 'event_created' | 'event_updated' | 'event_deleted' | 'admin_login' | string;
 
 const ActivityIcon = ({ type }: { type: ActivityType }) => {
-  switch (type) {
-    case 'profile':
-      return (
-        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-          <FaUsers className="text-blue-600 text-sm" />
-        </div>
-      );
-    case 'announcement':
-      return (
-        <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-          <FaNewspaper className="text-amber-600 text-sm" />
-        </div>
-      );
-    case 'enrollment':
-      return (
-        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-          <FaUserGraduate className="text-green-600 text-sm" />
-        </div>
-      );
-    case 'grade':
-      return (
-        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-          <IoStatsChart className="text-purple-600 text-sm" />
-        </div>
-      );
-    case 'event':
-      return (
-        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-          <FaCalendarDays className="text-red-600 text-sm" />
-        </div>
-      );
-    default:
-      return (
-        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-          <FaBell className="text-gray-600 text-sm" />
-        </div>
-      );
+  if (type.startsWith('news_')) {
+    const colorClass = type === 'news_approved' ? 'bg-green-100 text-green-600' :
+                       type === 'news_rejected' ? 'bg-red-100 text-red-600' :
+                       type === 'news_deleted' ? 'bg-red-100 text-red-600' :
+                       'bg-blue-100 text-blue-600';
+    return (
+      <div className={`w-8 h-8 ${colorClass} rounded-full flex items-center justify-center flex-shrink-0`}>
+        <FaNewspaper className="text-sm" />
+      </div>
+    );
   }
+  
+  if (type.startsWith('event_')) {
+    const colorClass = type === 'event_deleted' ? 'bg-red-100 text-red-600' : 'bg-purple-100 text-purple-600';
+    return (
+      <div className={`w-8 h-8 ${colorClass} rounded-full flex items-center justify-center flex-shrink-0`}>
+        <FaCalendarDays className="text-sm" />
+      </div>
+    );
+  }
+  
+  if (type === 'admin_login') {
+    return (
+      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+        <FaUsers className="text-gray-600 text-sm" />
+      </div>
+    );
+  }
+  
+  return (
+    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+      <FaBell className="text-gray-600 text-sm" />
+    </div>
+  );
 };
 
 export default AdminPage;

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import NewsCard from './ui/NewsCard';
 import { getAllLocalizedNews } from '../data/localizedNewsData';
 import { useCommonTranslation, useNewsPageTranslation } from '../translations/useTranslation';
@@ -10,7 +11,30 @@ const NewsPage = () => {
   const { t: commonT } = useCommonTranslation();
   const { t } = useNewsPageTranslation();
   const [language] = useAtom(Language);
-  const newsItems = getAllLocalizedNews(language);
+
+  // Fetch dynamic news from API
+  const { data: dynamicNews, isLoading: newsLoading } = useQuery({
+    queryKey: ['all-published-news'],
+    queryFn: async () => {
+      const res = await fetch("http://localhost:5000/api/news/fetch");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch news");
+      // Only show published news
+      return (data.data || []).filter((n: any) => n.status === 'published');
+    },
+    retry: 1,
+  });
+
+  // Use dynamic news if available, fallback to static
+  const newsItems = dynamicNews && dynamicNews.length > 0 
+    ? dynamicNews.map((news: any) => ({
+        id: news._id,
+        title: news.title,
+        excerpt: news.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...',
+        thumbnailUrl: news.image,
+        imageUrl: news.image,
+      }))
+    : getAllLocalizedNews(language);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -39,27 +63,42 @@ const NewsPage = () => {
 
       {/* News Grid */}
       <div className="container mx-auto px-4 py-12">
-        <motion.div
-          variants={fadeInUp}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
-        >
-          {newsItems.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}            >              <NewsCard
-                title={item.title}
-                excerpt={item.excerpt}
-                imageUrl={item.imageUrl}
-                thumbnailUrl={item.thumbnailUrl}
-                href={`/news/${item.id}`}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
+        {newsLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="w-12 h-12 border-t-2 border-b-2 border-accent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading news...</p>
+            </div>
+          </div>
+        ) : newsItems.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <p className="text-gray-600 text-lg">No news articles available at the moment.</p>
+            </div>
+          </div>
+        ) : (
+          <motion.div
+            variants={fadeInUp}
+            initial="hidden"
+            animate="visible"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+          >
+            {newsItems.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}              >                <NewsCard
+                  title={item.title}
+                  excerpt={item.excerpt}
+                  imageUrl={item.imageUrl}
+                  thumbnailUrl={item.thumbnailUrl}
+                  href={`/news/${item.id}`}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Back to Home */}
         <motion.div

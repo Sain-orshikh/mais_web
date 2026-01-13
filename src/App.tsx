@@ -16,6 +16,8 @@ const PublishNews = lazy(() => import("./components/Admin/PublishNews"));
 const UserManagement = lazy(() => import("./components/Admin/UserManagement"));
 const Calendar = lazy(() => import("./components/Admin/Calendar"));
 const Analytics = lazy(() => import("./components/Admin/Analytics"));
+const NewsManagement = lazy(() => import("./components/Admin/NewsManagement"));
+const EditNews = lazy(() => import("./components/Admin/EditNews"));
 const Login = lazy(() => import("./components/Admin/Login"));
 const ProtectedRoute = lazy(() => import("./components/Admin/ProtectedRoute"));
 
@@ -56,7 +58,9 @@ function App() {
             {/* Admin routes */}
             <Route path="/admin/login" element={<Login />} />
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+            <Route path="/admin/news" element={<ProtectedRoute><NewsManagement /></ProtectedRoute>} />
             <Route path="/admin/publish" element={<ProtectedRoute><PublishNews /></ProtectedRoute>} />
+            <Route path="/admin/edit-news/:id" element={<ProtectedRoute><EditNews /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute><UserManagement /></ProtectedRoute>} />
             <Route path="/admin/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
             <Route path="/admin/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />

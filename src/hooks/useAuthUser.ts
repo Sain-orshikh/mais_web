@@ -4,6 +4,7 @@ interface AuthUser {
   _id: string;
   username: string;
   permission: string;
+  lastLogin?: string | null;
 }
 
 export function useAuthUser() {

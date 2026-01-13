@@ -16,6 +16,10 @@ const adminSchema = new mongoose.Schema({
         enum: ['super_admin', 'admin', 'editor'],
         default: 'admin',
     },
+    lastLogin:{
+        type: Date,
+        default: null,
+    },
 },{timestamps: true});
 
 // Drop the email index if it exists

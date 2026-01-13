@@ -8,13 +8,15 @@ import { AnimatedBackground } from "./ui/animatedbg";
 
 export default function BlogsPage() {
 
-  const {data:blogs} = useQuery({
+  const {data:blogs, isLoading} = useQuery({
     queryKey: ['blogs'],
     queryFn: async () => {
-      const res = await fetch("http://localhost:5000/api/blogs/fetch");
+      const res = await fetch("http://localhost:5000/api/news/fetch");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fetch blogs");
-      return data;
+      // Filter to only show published news
+      const publishedNews = (data.data || []).filter((n: any) => n.status === 'published');
+      return { data: publishedNews };
     },
     retry: 1,
   });
@@ -52,61 +54,62 @@ export default function BlogsPage() {
           <h1 className="text-4xl font-bold mb-6">
             All News
           </h1>
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-300 pb-4">
-            <AnimatedBackground
-              defaultValue='All'
-              className='rounded-lg bg-gray-300 dark:bg-zinc-700'
-              transition={{
-                ease: 'easeInOut',
-                duration: 0.2,
-              }}
-            >
-              {categories.map((label, index) => {
-                return (
-                  <button
-                    key={index}
-                    data-id={label}
-                    type='button'
-                    aria-label={`${label} view`}
-                    className='inline-flex px-4 py-2 rounded-full items-center bg-gray-100 justify-center text-center text-zinc-800 transition-transform active:scale-[0.98] dark:text-zinc-50'
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </AnimatedBackground>
-            {/*categories.map((category, index) => (
-              <button
-                key={index}
-                className={`px-4 py-2 rounded-full text-sm ${
-                  index === 0 ? "bg-blue-100 text-blue-800" : "bg-gray-100 hover:bg-gray-200"
-                }`}
-              >
-                {category}
-              </button>
-            ))*/}
-          </div>
-          {Blogs && (
-                <Grid container columnSpacing={4} rowSpacing={2} columns={12} >
-                  {displayedBlogs.map((blog) => (
-                  <Grid 
-                    size={{ xs: 12, sm: 4 }}
-                    key={blog._id}
-                    className="mx-auto"
-                  >
-                    <BlogCard blog={blog} isPreview={false} />
-                  </Grid>
-                  ))}
+          
+          {isLoading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
+            </div>
+          ) : Blogs && Blogs.length > 0 ? (
+            <>
+              <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-300 pb-4">
+                <AnimatedBackground
+                  defaultValue='All'
+                  className='rounded-lg bg-gray-300 dark:bg-zinc-700'
+                  transition={{
+                    ease: 'easeInOut',
+                    duration: 0.2,
+                  }}
+                >
+                  {categories.map((label, index) => {
+                    return (
+                      <button
+                        key={index}
+                        data-id={label}
+                        type='button'
+                        aria-label={`${label} view`}
+                        className='inline-flex px-4 py-2 rounded-full items-center bg-gray-100 justify-center text-center text-zinc-800 transition-transform active:scale-[0.98] dark:text-zinc-50'
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </AnimatedBackground>
+              </div>
+              <Grid container columnSpacing={4} rowSpacing={2} columns={12} >
+                {displayedBlogs.map((blog) => (
+                <Grid 
+                  size={{ xs: 12, sm: 4 }}
+                  key={blog._id}
+                  className="mx-auto"
+                >
+                  <BlogCard blog={blog} isPreview={false} />
                 </Grid>
-          )}
-          {Blogs && displayedBlogs.length < Blogs.length && (
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={handleLoadMore}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Load More
-              </button>
+                ))}
+              </Grid>
+              {displayedBlogs.length < Blogs.length && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={handleLoadMore}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Load More
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-20">
+              <p className="text-xl text-gray-600">No published news articles available yet.</p>
             </div>
           )}
         </main>

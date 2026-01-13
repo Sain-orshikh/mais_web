@@ -1,15 +1,12 @@
-import { Link } from 'react-router-dom';
-
 interface EventCardProps {
   date: string;
   title: string;
   time?: string;
   location?: string;
   category?: string;
-  href?: string;
 }
 
-const EventCard = ({ date, title, time, location, category, href = "/events" }: EventCardProps) => {
+const EventCard = ({ date, title, time, location, category }: EventCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -19,12 +16,11 @@ const EventCard = ({ date, title, time, location, category, href = "/events" }: 
 
   const { day, month } = formatDate(date);
 
-  return (    <Link 
-      to={href}
-      className="group bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md hover:border-accent-200 transition-all duration-200 flex items-center space-x-4"
-    >
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm flex items-center space-x-4">
+
       {/* Date Box */}
-      <div className="flex-shrink-0 bg-accent-50 rounded-lg p-3 text-center min-w-[60px] group-hover:bg-accent-100 transition-colors">
+      <div className="flex-shrink-0 bg-accent-50 rounded-lg p-3 text-center min-w-[60px]">
         <div className="text-xs font-medium text-accent-600 uppercase">{month}</div>
         <div className="text-lg font-bold text-accent-900">{day}</div>
       </div>
@@ -37,7 +33,7 @@ const EventCard = ({ date, title, time, location, category, href = "/events" }: 
                 {category}
               </span>
             )}
-            <h3 className="text-sm font-semibold text-gray-900 group-hover:text-accent-700 line-clamp-2 transition-colors">
+            <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">
               {title}
             </h3>
             <div className="mt-1 space-y-1">
@@ -59,12 +55,10 @@ const EventCard = ({ date, title, time, location, category, href = "/events" }: 
                 </div>
               )}
             </div>
-          </div>          <svg className="w-4 h-4 text-gray-400 group-hover:text-accent-500 transition-colors flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
-          </svg>
+          </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

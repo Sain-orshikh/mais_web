@@ -1,17 +1,28 @@
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { getLocalizedNewsById } from '../data/localizedNewsData';
-import { useAtom } from 'jotai';
-import { Language } from '../store/ThemeAtom';
+import { useQuery } from '@tanstack/react-query';
 import { useNewsPageTranslation } from '../translations/useTranslation';
 
 const NewsArticle = () => {
   const { id } = useParams<{ id: string }>();
-  const [language] = useAtom(Language);  const { t, loading, error } = useNewsPageTranslation();
-  const newsId = id ? parseInt(id, 10) : null;
+  const { t, loading: translationLoading, error: translationError } = useNewsPageTranslation();
 
-  // Show loading state for translations
-  if (loading || !t) {
+  // Fetch news article from API
+  const { data: article, isLoading: articleLoading, error: articleError } = useQuery({
+    queryKey: ['news', id],
+    queryFn: async () => {
+      const res = await fetch(`http://localhost:5000/api/news/fetch/${id}`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch article');
+      }
+      const data = await res.json();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Show loading state for translations or article
+  if (translationLoading || !t || articleLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -22,16 +33,18 @@ const NewsArticle = () => {
     );
   }
 
-  if (error) {
+  if (translationError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
+          <p className="text-gray-600 mb-4">{translationError}</p>
         </div>
       </div>
     );
-  }    if (!newsId) {
+  }
+
+  if (!id) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -44,7 +57,7 @@ const NewsArticle = () => {
     );
   }
 
-  const article = getLocalizedNewsById(newsId, language);  if (!article) {
+  if (articleError || !article) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -55,13 +68,14 @@ const NewsArticle = () => {
           </Link>
         </div>
       </div>
-    );  }
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">      {/* Hero Section */}
       <div className="relative h-[16rem] sm:h-[32rem] overflow-hidden">
         <img
-          src={article.imageUrl}
+          src={article.image}
           alt={article.title}
           className="w-full h-full object-fill"
         />

@@ -16,8 +16,12 @@ const createAdmin = async () => {
         // Connect to MongoDB
         await connectMongoDB();
 
+        // Get credentials from environment variables
+        const adminUsername = process.env.SUPER_ADMIN_USERNAME || "admin";
+        const adminPassword = process.env.SUPER_ADMIN_PASSWORD || "admin123";
+
         // Check if admin already exists
-        const existingAdmin = await Admin.findOne({ username: "admin" });
+        const existingAdmin = await Admin.findOne({ username: adminUsername });
         if (existingAdmin) {
             console.log("Admin already exists!");
             process.exit(0);
@@ -25,18 +29,18 @@ const createAdmin = async () => {
 
         // Create new admin
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash("admin123", salt);
+        const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
         const newAdmin = new Admin({
-            username: "admin",
+            username: adminUsername,
             password: hashedPassword,
             permission: "super_admin"
         });
 
         await newAdmin.save();
         console.log("✅ Admin created successfully!");
-        console.log("Username: admin");
-        console.log("Password: admin123");
+        console.log(`Username: ${adminUsername}`);
+        console.log(`Password: ${adminPassword}`);
         console.log("⚠️  Please change the password after first login!");
         
         process.exit(0);

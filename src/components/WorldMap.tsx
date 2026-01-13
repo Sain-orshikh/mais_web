@@ -182,7 +182,7 @@ const WorldMapComponent = () => {
     <>
       {/* Custom styles for WorldMap SVG stretching */}
       <style dangerouslySetInnerHTML={{ __html: worldMapStyles }} />
-        <div className="relative w-full bg-gradient-to-br from-green-50 to-green-100 rounded-xl overflow-hidden p-4 md:p-8 shadow-lg">
+        <div className="relative w-full bg-gray-50 rounded-xl overflow-hidden p-4 md:p-8 shadow-[0_-2px_4px_-1px_rgba(0,0,0,0.06),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4 md:mb-6 text-center">{t.worldMap.title}</h2>
         
         {/* Filters */}

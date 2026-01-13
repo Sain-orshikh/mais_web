@@ -18,7 +18,7 @@ const newsSchema = new mongoose.Schema({
     },
     category:{
         type: String,
-        required: true,
+        required: false,
         default: "",
     },
     imageurl:{
@@ -32,6 +32,22 @@ const newsSchema = new mongoose.Schema({
     likes:{
         type: Number,
         default: 0,
+    },
+    status: {
+        type: String,
+        enum: ['draft', 'pending', 'published'],
+        default: 'draft',
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+    },
+    approvedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Admin',
+    },
+    approvedAt: {
+        type: Date,
     },
 },{timestamps: true});
 
