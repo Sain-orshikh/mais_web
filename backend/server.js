@@ -30,18 +30,25 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration - allow frontend to access backend
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://mongolaspiration.edu.mn", // Your production domain
+    "http://mongolaspiration.edu.mn",
+    process.env.FRONTEND_URL // Add frontend URL from env
+].filter(Boolean);
+
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, Postman, etc.)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('CORS policy violation'), false);
+        }
+        return callback(null, true);
+    },
     methods: "GET, POST, PUT, DELETE",
     credentials: true,
 }));
-
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-});
 
 app.use(express.json({limit: "5mb"})); // to parse req.body
 app.use(express.urlencoded({ extended: true })); // to parse form data
